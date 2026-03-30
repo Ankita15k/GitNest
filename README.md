@@ -1,10 +1,18 @@
 <div align="center">
 
 <img src="https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge" alt="version"/>
-<img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge" alt="PRs Welcome"/>
-<img src="https://img.shields.io/badge/GSSoC-2026-orange?style=for-the-badge" alt="GSSoC 2026"/>
-<img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="MIT License"/>
-<img src="https://img.shields.io/badge/stack-MERN-yellow?style=for-the-badge" alt="MERN Stack"/>
+<img src="https://img.shields.io/badge/PRs-welcome-teal?style=for-the-badge" alt="PRs Welcome"/>
+<img src="https://img.shields.io/github/repo-size/Ankita15k/GitNest?style=for-the-badge" alt="Repo_Size"/>
+<img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge" alt="MIT License"/>
+<img src="https://img.shields.io/badge/stack-MERN-pink?style=for-the-badge" alt="MERN Stack"/>
+
+![Visitors](https://api.visitorbadge.io/api/visitors?path=Ankita15k%2FGitNest%20&countColor=%23263759&style=flat)
+
+[![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+![GitHub forks](https://img.shields.io/github/forks/Ankita15k/GitNest)
+![GitHub Repo stars](https://img.shields.io/github/stars/Ankita15k/GitNest)
+![GitHub contributors](https://img.shields.io/github/contributors/Ankita15k/GitNest)
+![GitHub last commit](https://img.shields.io/github/last-commit/Ankita15k/GitNest)
 
 ## <img width="150" height="150" alt="Logo" src="https://github.com/user-attachments/assets/b4cf9a44-aa69-4256-bae9-7f67b5246278" />
 
