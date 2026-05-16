@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -8,8 +8,12 @@ const Login = () => {
     password: '',
   });
 
-  const { login, loading, error } = useAuthStore();
+  const { login, loading, error, clearError } = useAuthStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    clearError();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,6 +21,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       await login(formData.email, formData.password);
       navigate('/');
@@ -33,8 +38,14 @@ const Login = () => {
             Sign in to your account
           </h2>
         </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+          {error && (
+            <div className="text-red-500 text-sm text-center">
+              {error}
+            </div>
+          )}
+
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <input
@@ -47,6 +58,7 @@ const Login = () => {
                 onChange={handleChange}
               />
             </div>
+
             <div>
               <input
                 name="password"
@@ -69,8 +81,12 @@ const Login = () => {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
+
           <div className="text-sm text-center">
-            <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link
+              to="/register"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
               Don't have an account? Sign up
             </Link>
           </div>

@@ -11,56 +11,82 @@ export const useAuthStore = create(
       loading: false,
       error: null,
 
+      clearError: () => set({ error: null }),
+
       login: async (email, password) => {
         set({ loading: true, error: null });
+
         try {
           const res = await loginUser({ email, password });
+
           set({
-            user: { _id: res.data._id, username: res.data.username, email: res.data.email },
+            user: {
+              _id: res.data._id,
+              username: res.data.username,
+              email: res.data.email,
+            },
             token: res.data.token,
             isAuthenticated: true,
             loading: false,
+            error: null,
           });
         } catch (error) {
           set({
             error: error.response?.data?.message || 'Login failed',
             loading: false,
           });
+
           throw error;
         }
       },
 
       register: async (userData) => {
         set({ loading: true, error: null });
+
         try {
           const res = await registerUser(userData);
+
           set({
-            user: { _id: res.data._id, username: res.data.username, email: res.data.email },
+            user: {
+              _id: res.data._id,
+              username: res.data.username,
+              email: res.data.email,
+            },
             token: res.data.token,
             isAuthenticated: true,
             loading: false,
+            error: null,
           });
         } catch (error) {
           set({
             error: error.response?.data?.message || 'Registration failed',
             loading: false,
           });
+
           throw error;
         }
       },
 
       logout: () => {
-        set({ user: null, token: null, isAuthenticated: false, error: null });
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          error: null,
+        });
       },
 
       checkAuth: async () => {
         set({ loading: true, error: null });
+
         try {
           const res = await getMe();
+
           set({
             user: res.data,
             isAuthenticated: true,
             loading: false,
+            error: null,
           });
         } catch (error) {
           set({
@@ -68,12 +94,19 @@ export const useAuthStore = create(
             token: null,
             isAuthenticated: false,
             loading: false,
+            error: null,
           });
         }
       },
     }),
     {
-      name: 'auth-storage', // local storage key
+      name: 'auth-storage',
+
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );

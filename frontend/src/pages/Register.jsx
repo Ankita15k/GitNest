@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -9,8 +9,12 @@ const Register = () => {
     password: '',
   });
 
-  const { register, loading, error } = useAuthStore();
+  const { register, loading, error, clearError } = useAuthStore();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    clearError();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,6 +22,7 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
       await register(formData);
       navigate('/');
@@ -34,8 +39,14 @@ const Register = () => {
             Create your account
           </h2>
         </div>
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+          {error && (
+            <div className="text-red-500 text-sm text-center">
+              {error}
+            </div>
+          )}
+
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <input
@@ -48,6 +59,7 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
+
             <div>
               <input
                 name="email"
@@ -59,6 +71,7 @@ const Register = () => {
                 onChange={handleChange}
               />
             </div>
+
             <div>
               <input
                 name="password"
@@ -81,8 +94,12 @@ const Register = () => {
               {loading ? 'Registering...' : 'Register'}
             </button>
           </div>
+
           <div className="text-sm text-center">
-            <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link
+              to="/login"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
               Already have an account? Sign in
             </Link>
           </div>
