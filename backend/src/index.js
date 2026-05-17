@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes.js';
 import AppError from './utils/AppError.js';
 import healthRoute from './routes/health.route.js';
 import errorHandler from './middleware/errorHandler.js';
+import { connectProducer } from './controllers/producer.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +36,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await connectProducer();
   console.log(`Server running on port ${PORT}`);
 });
