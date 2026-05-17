@@ -1,6 +1,9 @@
 import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuthStore } from './store/authStore';
+import { useThemeStore } from './store/useThemeStore';
+import { useEffect } from 'react';
+import ThemeToggle from './components/ThemeToggle';
 import './App.css';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
@@ -26,18 +29,33 @@ const Dashboard = () => {
 };
 
 function App() {
-  return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/" element={<GitNestHomepage />}/>
+  const { isDarkMode } = useThemeStore();
 
-      <Route element={<ProtectedRoute />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Route>
-      
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  return (
+    <div className="min-h-screen">
+      <header className="p-4 flex justify-end border-b border-zinc-200 dark:border-zinc-800 transition-colors">
+        <ThemeToggle />
+      </header>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/" element={<GitNestHomepage />}/>
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+        </Route>
+        
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </div>
   );
 }
 
