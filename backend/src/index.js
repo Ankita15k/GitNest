@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './config/db.js';
 import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
 import AppError from './utils/AppError.js';
 import healthRoute from './routes/health.route.js';
 import errorHandler from './middleware/errorHandler.js';
@@ -18,6 +19,7 @@ app.use(express.json());
 
 app.use('/health', healthRoute);
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/users', userRoutes);
 
 app.use(errorHandler);
 app.use((req, res, next) => {

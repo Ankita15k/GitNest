@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen bg-[#0A0F1C] flex flex-col items-center justify-center text-slate-200 p-6 font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen bg-white dark:bg-[#0A0F1C] flex flex-col items-center justify-center text-zinc-900 dark:text-slate-200 p-6 font-sans selection:bg-blue-500/30 transition-colors">
       <div className="max-w-md w-full flex flex-col items-center text-center space-y-8">
         
         {/* Logo/Icon Area */}

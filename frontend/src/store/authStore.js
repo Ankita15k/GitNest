@@ -52,7 +52,9 @@ export const useAuthStore = create(
       logout: () => {
         set({ user: null, token: null, isAuthenticated: false, error: null });
       },
-
+      clearError: () => {
+        set({ error: null });
+      },
       checkAuth: async () => {
         set({ loading: true, error: null });
         try {

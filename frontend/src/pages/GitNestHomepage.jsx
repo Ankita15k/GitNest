@@ -44,18 +44,18 @@
         ];
 
         return (
-            <div className="min-h-screen bg-[#06070a] text-white overflow-hidden">
+            <div className="min-h-screen bg-white dark:bg-[#06070a] text-zinc-900 dark:text-white transition-colors overflow-hidden">
                 {/* Background Effects */}
                 <div className="absolute inset-0 -z-10">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/10 blur-[120px] rounded-full" />
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/5 dark:bg-emerald-500/10 blur-[120px] rounded-full" />
                     <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-cyan-500/5 blur-[120px] rounded-full" />
                 </div>
 
                 {/* Navbar */}
-                <header className="sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl bg-[#06070a]/80">
+                <header className="sticky top-0 z-50 border-b border-zinc-200 dark:border-white/5 backdrop-blur-xl bg-white/80 dark:bg-[#06070a]/80 transition-colors">
                     <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
                         <div className="flex items-center gap-3 cursor-pointer select-none">
-                            <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center overflow-hidden shadow-2xl shadow-emerald-500/20 border border-white/10 p-1">
+                            <div className="w-11 h-11 rounded-2xl bg-zinc-100 dark:bg-white flex items-center justify-center overflow-hidden shadow-2xl shadow-emerald-500/20 border border-zinc-200 dark:border-white/10 p-1">
                                 <img
                                     src="./logo.png"
                                     alt="GitNest Logo"
@@ -73,23 +73,23 @@
                             </div>
                         </div>
 
-                        <nav className="hidden md:flex items-center gap-8 text-sm text-zinc-400">
-                            <a href="#features" className="hover:text-white transition-colors">
+                        <nav className="hidden md:flex items-center gap-8 text-sm text-zinc-600 dark:text-zinc-400">
+                            <a href="#features" className="hover:text-zinc-900 dark:hover:text-white transition-colors">
                                 Features
                             </a>
-                            <a href="#workflow" className="hover:text-white transition-colors">
+                            <a href="#workflow" className="hover:text-zinc-900 dark:hover:text-white transition-colors">
                                 Workflow
                             </a>
-                            <a href="#opensource" className="hover:text-white transition-colors">
+                            <a href="#opensource" className="hover:text-zinc-900 dark:hover:text-white transition-colors">
                                 Open Source
                             </a>
-                            <a href="#contributors" className="hover:text-white transition-colors">
+                            <a href="#contributors" className="hover:text-zinc-900 dark:hover:text-white transition-colors">
                                 Contributors
                             </a>
                         </nav>
 
                         <div className="flex items-center gap-3">
-                            <button className="hidden sm:flex px-4 py-2 rounded-xl border border-white/10 bg-white/[0.03] text-sm text-zinc-300 hover:bg-white/[0.06] transition-all">
+                            <button className="hidden sm:flex px-4 py-2 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03] text-sm text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition-all">
                                 Documentation
                             </button>
 
@@ -127,7 +127,7 @@
                                     Explore Repositories
                                 </button>
 
-                                <button className="px-7 py-4 rounded-2xl border border-white/10 bg-white/[0.03] text-zinc-200 hover:bg-white/[0.06] transition-all">
+                                <button className="px-7 py-4 rounded-2xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition-all">
                                     View Architecture
                                 </button>
                             </div>
@@ -136,9 +136,9 @@
                                 {stats.map((item) => (
                                     <div
                                         key={item.label}
-                                        className="rounded-2xl border border-white/5 bg-white/[0.03] p-5"
+                                        className="rounded-2xl border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-white/[0.03] p-5"
                                     >
-                                        <h3 className="text-2xl font-black text-white mb-1">
+                                        <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-1">
                                             {item.value}
                                         </h3>
                                         <p className="text-sm text-zinc-500">{item.label}</p>
@@ -151,9 +151,9 @@
                         <div className="relative">
                             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 blur-3xl rounded-full" />
 
-                            <div className="relative rounded-3xl border border-white/10 bg-[#0d1016]/80 backdrop-blur-xl overflow-hidden shadow-2xl shadow-black/40">
+                            <div className="relative rounded-3xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-[#0d1016]/80 backdrop-blur-xl overflow-hidden shadow-2xl shadow-black/40">
                                 {/* Window Header */}
-                                <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-white/[0.02]">
+                                <div className="h-14 border-b border-zinc-200 dark:border-white/5 flex items-center justify-between px-6 bg-zinc-100 dark:bg-white/[0.02]">
                                     <div className="flex items-center gap-2">
                                         <div className="w-3 h-3 rounded-full bg-red-400" />
                                         <div className="w-3 h-3 rounded-full bg-yellow-400" />
@@ -209,7 +209,7 @@
                                         ].map((item) => (
                                             <div
                                                 key={item}
-                                                className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3"
+                                                className="flex items-center justify-between rounded-xl border border-zinc-200 dark:border-white/5 bg-zinc-100 dark:bg-white/[0.02] px-4 py-3"
                                             >
                                                 <div className="flex items-center gap-3 min-w-0">
                                                     <div className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
@@ -227,7 +227,7 @@
                 </section>
 
                 {/* Features */}
-                <section id="features" className="relative py-28 border-t border-white/5">
+                <section id="features" className="relative py-28 border-t border-zinc-200 dark:border-white/5">
                     <div className="max-w-7xl mx-auto px-6">
                         <div className="max-w-3xl mb-16">
                             <p className="text-emerald-400 text-sm font-semibold tracking-widest uppercase mb-4">
@@ -248,7 +248,7 @@
                             {features.map((feature) => (
                                 <div
                                     key={feature.title}
-                                    className="group rounded-3xl border border-white/5 bg-white/[0.03] p-7 hover:border-emerald-400/20 hover:bg-white/[0.05] transition-all duration-300"
+                                    className="group rounded-3xl border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-white/[0.03] p-7 hover:border-emerald-400/20 hover:bg-zinc-100 dark:hover:bg-white/[0.05] transition-all duration-300"
                                 >
                                     <div className="w-14 h-14 rounded-2xl bg-emerald-400/10 border border-emerald-400/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                         {feature.icon}
@@ -268,10 +268,10 @@
                 {/* Contributor CTA */}
                 <section
                     id="contributors"
-                    className="relative py-28 border-t border-white/5"
+                    className="relative py-28 border-t border-zinc-200 dark:border-white/5"
                 >
                     <div className="max-w-5xl mx-auto px-6 text-center">
-                        <div className="rounded-[2rem] border border-white/5 bg-gradient-to-br from-emerald-400/10 to-cyan-500/5 p-14 overflow-hidden relative">
+                        <div className="rounded-[2rem] border border-zinc-200 dark:border-white/5 bg-gradient-to-br from-emerald-400/10 to-cyan-500/5 p-14 overflow-hidden relative">
                             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.18),transparent_50%)]" />
 
                             <div className="relative z-10">
@@ -294,7 +294,7 @@
                                         Contribute Now
                                     </button>
 
-                                    <button className="px-7 py-4 rounded-2xl border border-white/10 bg-white/[0.03] text-zinc-200 hover:bg-white/[0.06] transition-all">
+                                    <button className="px-7 py-4 rounded-2xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03] text-zinc-700 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-white/[0.06] transition-all">
                                         Read Contribution Guide
                                     </button>
                                 </div>
@@ -304,11 +304,11 @@
                 </section>
 
                 {/* Footer */}
-                <footer className="border-t border-white/5 py-14">
+                <footer className="border-t border-zinc-200 dark:border-white/5 py-14">
                     <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
                         <div>
                             <div className="flex items-center gap-3 mb-5">
-                                <div className="w-11 h-11 rounded-2xl bg-white flex items-center justify-center overflow-hidden border border-white/10 p-1">
+                                <div className="w-11 h-11 rounded-2xl bg-zinc-100 dark:bg-white flex items-center justify-center overflow-hidden border border-zinc-200 dark:border-white/10 p-1">
                                     <img
                                         src="/logo.png"
                                         alt="GitNest Logo"
@@ -317,7 +317,7 @@
                                 </div>
 
                                 <div>
-                                    <h3 className="font-black text-xl tracking-tight">
+                                    <h3 className="font-black text-xl tracking-tight text-zinc-900 dark:text-white">
                                         Git<span className="text-emerald-400">Nest</span>
                                     </h3>
                                     <p className="text-xs text-zinc-500 uppercase tracking-[0.25em]">
@@ -386,7 +386,7 @@
                                 ].map((tech) => (
                                     <span
                                         key={tech}
-                                        className="px-3 py-2 rounded-xl border border-white/5 bg-white/[0.03] text-xs text-zinc-400"
+                                        className="px-3 py-2 rounded-xl border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-white/[0.03] text-xs text-zinc-600 dark:text-zinc-400"
                                     >
                                         {tech}
                                     </span>
