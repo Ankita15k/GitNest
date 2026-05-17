@@ -6,6 +6,7 @@
 <img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge" alt="MIT License"/>
 <img src="https://img.shields.io/badge/stack-MERN-pink?style=for-the-badge" alt="MERN Stack"/>
 
+
 ![Visitors](https://api.visitorbadge.io/api/visitors?path=Ankita15k%2FGitNest%20&countColor=%23263759&style=flat)
 
 [![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
@@ -13,6 +14,7 @@
 ![GitHub Repo stars](https://img.shields.io/github/stars/Ankita15k/GitNest)
 ![GitHub contributors](https://img.shields.io/github/contributors/Ankita15k/GitNest)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Ankita15k/GitNest)
+[![Join Discord](https://img.shields.io/discord/1505228467086823504?color=5865F2&label=Join%20Discord&logo=discord&logoColor=white)](https://discord.gg/QHSNsRuA)
 
 ## <img width="120" height="110" alt="Logo" src="https://github.com/user-attachments/assets/b4cf9a44-aa69-4256-bae9-7f67b5246278" />
 
