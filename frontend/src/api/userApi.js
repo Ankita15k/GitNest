@@ -1,16 +1,17 @@
 import axios from 'axios';
+import { API_BASE_URL } from '../utils/apiConfig.js';
+import { getToken } from '../utils/getToken.js';
 
-const BASE = import.meta.env.VITE_API_URL
-  ? import.meta.env.VITE_API_URL.replace('/auth', '')
-  : 'http://localhost:5000/api/v1';
-
-const userApi = axios.create({ baseURL: `${BASE}/users` });
+const userApi = axios.create({ baseURL: `${API_BASE_URL}/users` });
 
 userApi.interceptors.request.use((config) => {
-  const state = JSON.parse(localStorage.getItem('auth-storage'));
-  if (state?.state?.token) {
-    config.headers.Authorization = `Bearer ${state.state.token}`;
+  const token = getToken();
+
+  if (token) {
+    config.headers = config.headers ?? {};
+    config.headers.Authorization = `Bearer ${token}`;
   }
+
   return config;
 });
 

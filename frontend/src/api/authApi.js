@@ -1,10 +1,6 @@
 import axios from 'axios';
-
-/**
- * API base URL configuration
- * Uses VITE_API_URL env var, defaults to localhost for development
- */
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+import { API_BASE_URL } from '../utils/apiConfig.js';
+import { getToken } from '../utils/getToken.js';
 
 const authApi = axios.create({
   baseURL: API_BASE_URL,
@@ -18,15 +14,13 @@ const authApi = axios.create({
  */
 authApi.interceptors.request.use(
   (config) => {
-    try {
-      const state = JSON.parse(localStorage.getItem('auth-storage'));
-      const token = state?.state?.token;
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-    } catch {
-      // Silently ignore parsing errors - invalid storage state is handled by auth store
+    const token = getToken();
+
+    if (token) {
+      config.headers = config.headers ?? {};
+      config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => {
@@ -40,8 +34,19 @@ authApi.interceptors.request.use(
 authApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Preserve axios error format for caller to handle
-    return Promise.reject(error);
+    const message = error?.response
+      ? error.response.data?.message || error.response.data?.error || `Request failed with status ${error.response.status}`
+      : error?.request
+        ? 'No response received from the server. Please check your connection and try again.'
+        : error?.message || 'An unexpected error occurred while making the request.';
+
+    const normalizedError = new Error(message);
+    normalizedError.cause = error;
+    normalizedError.config = error?.config;
+    normalizedError.request = error?.request;
+    normalizedError.response = error?.response;
+
+    return Promise.reject(normalizedError);
   }
 );
 
