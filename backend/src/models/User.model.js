@@ -42,6 +42,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    displayName: {
+      type: String,
+      default: '',
+    },
+    company: {
+      type: String,
+      default: '',
+    },
+    twitterHandle: {
+      type: String,
+      default: '',
+    },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },

@@ -74,7 +74,7 @@ export const unfollowUser = asyncHandler(async (req, res, next) => {
  * @access  Private
  */
 export const updateProfile = asyncHandler(async (req, res, next) => {
-  const { bio, location, website, avatarUrl } = req.body;
+  const { bio, location, website, avatarUrl, displayName, company, twitterHandle } = req.body;
 
   const user = await User.findById(req.user._id);
 
@@ -103,6 +103,21 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
   if (avatarUrl !== undefined && avatarUrl !== user.avatarUrl) {
     user.avatarUrl = avatarUrl;
     changedFields.push('avatarUrl');
+  }
+
+  if (displayName !== undefined && displayName !== user.displayName) {
+    user.displayName = displayName;
+    changedFields.push('displayName');
+  }
+
+  if (company !== undefined && company !== user.company) {
+    user.company = company;
+    changedFields.push('company');
+  }
+
+  if (twitterHandle !== undefined && twitterHandle !== user.twitterHandle) {
+    user.twitterHandle = twitterHandle;
+    changedFields.push('twitterHandle');
   }
 
   await user.save();
