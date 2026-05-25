@@ -25,7 +25,7 @@ export const protect = asyncHandler(async (req, res, next) => {
     const user = await User.findById(decoded.id).select('-password');
 
     if (!user) {
-      return next(new AppError('User account no longer exists', 401));
+      return next(new AppError('User associated with token no longer exists', 401));
     }
 
     req.user = user;

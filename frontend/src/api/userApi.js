@@ -1,5 +1,4 @@
 import { createApiClient } from './createApiClient.js';
-import { API_BASE_URL } from '../utils/apiConfig.js';
 
 const userApi = createApiClient(`/users`);
 

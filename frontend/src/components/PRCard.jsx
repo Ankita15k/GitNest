@@ -1,5 +1,6 @@
 import { GitPullRequest, GitMerge, XCircle, Clock, User, GitBranch } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getApiUserName } from '../utils/apiContracts.js';
 
 const statusConfig = {
   open: {
@@ -30,10 +31,14 @@ const getTimeAgo = (dateStr) => {
 export default function PRCard({ pr }) {
   const navigate = useNavigate();
   const config = statusConfig[pr.status] || statusConfig.open;
+  const author = getApiUserName(pr.author);
+  const commentCount = Array.isArray(pr.comments) ? pr.comments.length : Number(pr.comments || 0);
+  const fromBranch = pr.fromBranch || pr.sourceBranch;
+  const toBranch = pr.toBranch || pr.targetBranch;
 
   return (
     <div
-      onClick={() => navigate(`/pull-requests/${pr.id}`)}
+      onClick={() => navigate(`/pull-requests/${pr.id || pr._id}`)}
       className="group flex items-start gap-4 px-5 py-4 border-b border-zinc-200 dark:border-white/5 hover:bg-zinc-50 dark:hover:bg-white/[0.02] cursor-pointer transition-colors"
     >
       {/* Status Icon */}
@@ -59,13 +64,13 @@ export default function PRCard({ pr }) {
           </span>
           <span className="flex items-center gap-1">
             <User className="w-3 h-3" />
-            {pr.author}
+            {author}
           </span>
           <span className="flex items-center gap-1">
             <GitBranch className="w-3 h-3" />
-            <span className="font-mono">{pr.fromBranch}</span>
+            <span className="font-mono">{fromBranch}</span>
             <span className="text-zinc-600">→</span>
-            <span className="font-mono">{pr.toBranch}</span>
+            <span className="font-mono">{toBranch}</span>
           </span>
           <span className="flex items-center gap-1">
             <Clock className="w-3 h-3" />
@@ -75,12 +80,12 @@ export default function PRCard({ pr }) {
       </div>
 
       {/* Comment count */}
-      {pr.comments > 0 && (
+      {commentCount > 0 && (
         <div className="flex-shrink-0 flex items-center gap-1 text-xs text-zinc-500">
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 8h10M7 12h6m-6 8l4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
           </svg>
-          {pr.comments}
+          {commentCount}
         </div>
       )}
     </div>

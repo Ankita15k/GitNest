@@ -2,19 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { loginUser, registerUser, getMe } from '../api/authApi';
 
-const extractUserData = (responseData) => {
-  if (!responseData || !responseData.data) {
-    return null;
-  }
-  const { _id, username, email, token } = responseData.data;
-  return { _id, username, email, token };
-};
-
-const extractErrorMessage = (error) => {
+const getFriendlyAuthError = (error, fallback) => {
   if (error?.errors && Array.isArray(error.errors) && error.errors.length > 0) {
     return error.errors.map((err) => err.message).join(', ');
   }
-  return error?.message || 'An error occurred';
+  return error?.message || fallback;
 };
 
 export const useAuthStore = create(
@@ -79,7 +71,7 @@ export const useAuthStore = create(
             isAuthenticated: true,
             loading: false,
           });
-        } catch (error) {
+        } catch {
           set({
             user: null,
             token: null,

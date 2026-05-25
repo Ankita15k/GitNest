@@ -3,14 +3,11 @@ export const sendSuccess = (res, statusCode, data, message = 'Success') => {
     success: true,
     status: 'success',
     message,
-    data,
+    data: data ?? null,
+    requestId: res.locals?.requestId || null,
   };
 
-  if (res.locals?.requestId) {
-    payload.requestId = res.locals.requestId;
-  }
-
-  res.status(statusCode).json(payload);
+  return res.status(statusCode).json(payload);
 };
 
 export const sendPaginated = (res, statusCode, data, pagination, message = 'Success') => {
@@ -18,15 +15,12 @@ export const sendPaginated = (res, statusCode, data, pagination, message = 'Succ
     success: true,
     status: 'success',
     message,
-    data,
+    data: data ?? null,
     pagination,
+    requestId: res.locals?.requestId || null,
   };
 
-  if (res.locals?.requestId) {
-    payload.requestId = res.locals.requestId;
-  }
-
-  res.status(statusCode).json(payload);
+  return res.status(statusCode).json(payload);
 };
 
 export const sendError = (
@@ -39,8 +33,9 @@ export const sendError = (
     requestId = null,
   }
 ) => {
-  res.status(statusCode).json({
+  return res.status(statusCode).json({
     success: false,
+    status: statusCode >= 500 ? 'error' : 'fail',
     statusCode,
     code,
     message,

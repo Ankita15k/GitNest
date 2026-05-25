@@ -10,8 +10,10 @@ import paginate, { buildPaginationMeta } from '../utils/paginate.js';
 
 // DRY helper — resolves a :username param to the owner document's _id.
 // Returns null when the username does not exist so callers can 404 cleanly.
-const resolveOwner = (username) =>
-    User.findOne({ username: username.toLowerCase() }).select('_id');
+const resolveOwner = (username) => {
+    const query = User.findOne({ username: username.toLowerCase() });
+    return typeof query?.select === 'function' ? query.select('_id') : query;
+};
 
 export const createRepository = asyncHandler(async (req, res, next) => {
     const { name, description, visibility, language, topics } = req.body;
@@ -306,11 +308,14 @@ export const forkRepository = asyncHandler(
         try {
             session.startTransaction();
 
-            const existing = await Repository.findOne({
+            const existingQuery = Repository.findOne({
                 name: reponame,
                 owner: req.user.id,
                 forkedFrom: original._id,
-            }).session(session);
+            });
+            const existing = typeof existingQuery?.session === 'function'
+                ? await existingQuery.session(session)
+                : await existingQuery;
 
             if (existing) {
                 await session.abortTransaction();

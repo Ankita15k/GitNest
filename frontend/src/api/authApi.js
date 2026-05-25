@@ -14,12 +14,12 @@ export const loginUser = async (userData) => {
 
 export const getMe = async () => {
   const response = await authApi.get('/auth/me');
-  return response.data;
+  return response.data.data;
 };
 
 export const updateUserProfile = async (profileData) => {
   const response = await authApi.put('/users/profile', profileData);
-  return response.data;
+  return response.data.data;
 };
 
 export default authApi;
