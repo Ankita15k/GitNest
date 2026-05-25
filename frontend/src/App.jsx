@@ -16,6 +16,7 @@ import PullRequestDetailPage from './pages/PullRequestDetailPage';
 import UserProfile from './pages/UserProfile';
 import ActivityFeedPage from './pages/ActivityFeed.jsx';
 import ComponentShowcase from './pages/ComponentShowcase.jsx';
+import GitNestPrivacy from './pages/GitNestPrivacy.jsx';
 import BackToTop from './components/BackToTop/BackToTop';
 import GitNestTerms from './pages/GitNestTerms.jsx';
 
@@ -61,6 +62,7 @@ function App() {
           <Route path="/activities" element={<ActivityFeedPage />} />
           <Route path="/:username" element={<UserProfile />} />
           <Route path="/showcase" element={<ComponentShowcase />} />
+          <Route path="/privacy" element={<GitNestPrivacy />} />
           <Route path="/terms" element={<GitNestTerms />} />
 
           <Route element={<ProtectedRoute />}>

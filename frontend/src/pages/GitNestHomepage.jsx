@@ -461,8 +461,26 @@ export default function GitNestHomepage() {
                 {/* BACKGROUND DECOR */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
 
+                    <div
+                        className="absolute inset-0"
+                        style={{
+                            backgroundImage:
+                                "radial-gradient(circle at 20% 18%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.45) 14%, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0) 58%), linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.12) 24%, rgba(255,255,255,0) 52%)",
+                        }}
+                    />
+
                     {/* LEFT BLUR */}
-                    <div className="absolute left-[-120px] top-[45%] w-[220px] h-[220px] rounded-full bg-blue-200/30 blur-3xl" />
+                    <div className="absolute left-[-120px] top-[45%] w-[220px] h-[220px] rounded-full bg-blue-200/25 blur-3xl" />
+
+                    <div className="absolute -top-24 right-12 h-80 w-80 rounded-full bg-white/50 blur-3xl dark:bg-cyan-400/10" />
+
+                    <div className="absolute inset-0 opacity-[0.04]"
+                        style={{
+                            backgroundImage:
+                                "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
+                            backgroundSize: "80px 80px",
+                        }}
+                    />
 
                     {/* RIGHT CURVE */}
                     <svg
@@ -570,6 +588,8 @@ export default function GitNestHomepage() {
                                 key={feature.title}
                                 className={`group relative overflow-hidden rounded-[34px] border border-white/60 dark:border-white/5 bg-gradient-to-br ${feature.bg} ${feature.darkBg} backdrop-blur-xl p-8 shadow-[0_10px_40px_rgba(15,23,42,0.05)] hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(15,23,42,0.12)] transition-all duration-500`}
                             >
+
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/55 via-white/15 to-transparent dark:from-white/6 dark:via-white/0 pointer-events-none" />
 
                                 {/* TOP GLOW */}
                                 <div

@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import Repository from '../models/Repository.model.js';
 import User from '../models/User.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
@@ -283,6 +282,10 @@ export const forkRepository = asyncHandler(
 
         const owner = await resolveOwner(username);
         if (!owner) return next(new AppError('Repository not found', 404));
+
+        if (!owner) {
+            return next(new AppError('Repository not found', 404));
+        }
 
         const original = await Repository.findOne({
             name: reponame,
