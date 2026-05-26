@@ -219,12 +219,12 @@ export default function GitNestHomepage() {
             </AnimatePresence>
 
             {/* HERO */}
-            <section className="relative pt-20" id="home">
+            <section className="relative pt-25" id="home">
 
                 <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-24 items-center">
 
                     {/* LEFT */}
-                    <div>
+                    <div className=" ">
 
                         {/* BADGE */}
                         <div className="inline-flex items-center gap-3 px-5 py-0 rounded-full border border-[#00dc82]/10 bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl text-[#1edb8c] shadow-lg mb-10">
@@ -330,7 +330,7 @@ export default function GitNestHomepage() {
                     </div>
 
                     {/* RIGHT DASHBOARD */}
-                    <div className="relative">
+                    <div className="relative pt-16">
 
                         {/* ORBITAL EFFECT */}
                         <div className="absolute inset-0 flex items-center justify-center">
