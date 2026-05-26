@@ -5,13 +5,20 @@ import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import swaggerUi from 'swagger-ui-express';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import repositoryRoutes from './routes/repository.routes.js';
+import activityRoutes from './routes/activity.routes.js';
+import pullRequestRoutes from './routes/pullRequest.routes.js';
 import architectureRoutes from './routes/architectureRoutes.js';
 import healthRoute from './routes/health.route.js';
 import errorHandler from './middleware/errorHandler.js';
 import AppError from './utils/AppError.js';
+import swaggerSpec from './config/swagger.js';
+import { requestIdMiddleware, attachRequestIdToResponse } from './middleware/requestId.js';
+import { sendError } from './utils/responseHandlers.js';
+import ERROR_CODES from './constants/errorCodes.js';
 
 const createApp = () => {
   const app = express();
@@ -38,6 +45,8 @@ const createApp = () => {
   app.use(helmet());
   app.use(mongoSanitize());
   app.use(hpp());
+  app.use(requestIdMiddleware);
+  app.use(attachRequestIdToResponse);
 
   if (process.env.LOG_REQUESTS === '1' || process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
@@ -49,10 +58,11 @@ const createApp = () => {
     standardHeaders: true,
     legacyHeaders: false,
     handler: (req, res) => {
-      res.status(429).json({
-        success: false,
-        status: 'fail',
+      sendError(res, {
+        statusCode: 429,
+        code: ERROR_CODES.RATE_LIMITED,
         message: 'Too many requests, please try again later',
+        requestId: req.requestId,
       });
     },
   });
@@ -62,14 +72,19 @@ const createApp = () => {
   }
 
   app.use('/health', healthRoute);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.get('/api-docs.json', (req, res) => res.status(200).json(swaggerSpec));
   app.use('/api/v1/auth', authRoutes);
   app.use('/api/v1/repos', repositoryRoutes);
+  app.use('/api/v1/repositories', repositoryRoutes);
   app.use('/api/v1/architecture', architectureRoutes);
   app.use('/api/v1/users', userRoutes);
+  app.use('/api/v1/activities', activityRoutes);
+  app.use('/api/v1/pull-requests', pullRequestRoutes);
 
   // 404 handler
   app.use((req, res, next) => {
-    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
+    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404, ERROR_CODES.NOT_FOUND));
   });
 
   // central error handler

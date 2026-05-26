@@ -17,7 +17,7 @@ const extractErrorMessage = (error) => {
   if (error?.errors && Array.isArray(error.errors) && error.errors.length > 0) {
     return error.errors.map((err) => err.message).join(', ');
   }
-  return error?.message || 'An error occurred';
+  return error?.message || fallback;
 };
 
 const getFriendlyAuthError = (error, fallbackMessage) => {
@@ -145,7 +145,7 @@ export const useAuthStore = create(
             user: res,
             isAuthenticated: true,
           });
-        } catch (error) {
+        } catch {
           set({
             user: null,
             token: null,

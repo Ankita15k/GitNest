@@ -4,6 +4,10 @@ import { register, login, getMe } from '../controllers/auth.controller.js';
 import { protect } from '../middleware/authMiddleware.js';
 import validateRequest from '../middleware/validateRequest.js';
 import { registerValidator, loginValidator } from '../validators/auth.validators.js';
+import schemaValidator from '../middleware/schemaValidator.js';
+import { contracts } from '../contracts/index.js';
+import { sendError } from '../utils/responseHandlers.js';
+import ERROR_CODES from '../constants/errorCodes.js';
 
 const router = express.Router();
 
@@ -18,16 +22,17 @@ const authLimiter = rateLimit({
 	standardHeaders: true,
 	legacyHeaders: false,
 	handler: (req, res) => {
-		res.status(429).json({
-			success: false,
-			status: 'fail',
+		sendError(res, {
+			statusCode: 429,
+			code: ERROR_CODES.RATE_LIMITED,
 			message: 'Too many auth attempts, please try again later',
+			requestId: req.requestId,
 		});
 	},
 });
 
-router.post('/register', authLimiter, registerValidator, validateRequest, register);
-router.post('/login', authLimiter, loginValidator, validateRequest, login);
-router.get('/me', protect, getMe);
+router.post('/register', authLimiter, ...schemaValidator(contracts.auth.register), registerValidator, validateRequest, register);
+router.post('/login', authLimiter, ...schemaValidator(contracts.auth.login), loginValidator, validateRequest, login);
+router.get('/me', protect, ...schemaValidator(contracts.auth.me), getMe);
 
 export default router;
