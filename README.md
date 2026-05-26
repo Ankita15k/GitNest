@@ -547,6 +547,15 @@ We love contributions! GitNest is a **GSSoC 2026** project and welcomes develope
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for full details on the workflow, coding standards, and commit message format.
 
+## 💖 Contributors
+
+Thanks to all the amazing people who contribute to **GitNest** 🚀
+
+<p align="center">
+  <a href="https://github.com/Ankita15k/GitNest/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=Ankita15k/GitNest" alt="Contributors"/>
+  </a>
+</p>
 
 ## 🗺️ Roadmap
 
