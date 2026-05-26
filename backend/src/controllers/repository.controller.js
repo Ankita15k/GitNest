@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Repository from '../models/Repository.model.js';
 import User from '../models/User.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
@@ -9,9 +10,9 @@ import paginate, { buildPaginationMeta } from '../utils/paginate.js';
 
 // DRY helper — resolves a :username param to the owner document's _id.
 // Returns null when the username does not exist so callers can 404 cleanly.
-const resolveOwner = (username) => {
-    const query = User.findOne({ username: username.toLowerCase() });
-    return typeof query?.select === 'function' ? query.select('_id') : query;
+const resolveOwner = async (username) => {
+    const owner = await User.findOne({ username: username.toLowerCase() });
+    return owner ? { _id: owner._id } : null;
 };
 
 export const createRepository = asyncHandler(async (req, res, next) => {
@@ -282,10 +283,6 @@ export const forkRepository = asyncHandler(
 
         const owner = await resolveOwner(username);
         if (!owner) return next(new AppError('Repository not found', 404));
-
-        if (!owner) {
-            return next(new AppError('Repository not found', 404));
-        }
 
         const original = await Repository.findOne({
             name: reponame,

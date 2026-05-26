@@ -182,6 +182,14 @@ const UserProfileContent = ({ username }) => {
                       </span>
                     )}
                   </div>
+                  <div className="mt-3">
+                    <Link
+                      to={`/${username}/${repo.name}/architecture`}
+                      className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 hover:border-emerald-500/40 hover:bg-emerald-500/15 dark:text-emerald-400"
+                    >
+                      View Architecture
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
