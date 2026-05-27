@@ -272,6 +272,13 @@ export const starRepository = asyncHandler(
             return next(new AppError('Repository not found', 404));
         }
 
+        if (
+            repository.visibility === 'private' &&
+            repository.owner.toString() !== req.user.id
+        ) {
+            return next(new AppError('Repository not found', 404));
+        }
+
         const alreadyStarred = repository.stars.includes(
             req.user.id
         );
@@ -337,11 +344,18 @@ export const forkRepository = asyncHandler(
             return next(new AppError('Repository not found', 404));
         }
 
+        if (
+            original.visibility === 'private' &&
+            original.owner.toString() !== req.user.id
+        ) {
+            return next(new AppError('Repository not found', 404));
+        }
+
         if (original.owner.toString() === req.user.id) {
             return next(
                 new AppError(
                     'You cannot fork your own repository',
-                    404
+                    400
                 )
             );
         }
@@ -377,7 +391,7 @@ export const forkRepository = asyncHandler(
                         name: original.name,
                         owner: req.user.id,
                         description: original.description,
-                        visibility: 'public',
+                        visibility: original.visibility,
                         language: original.language,
                         topics: original.topics,
                         defaultBranch: original.defaultBranch,

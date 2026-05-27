@@ -62,7 +62,7 @@ function App() {
           <Route path="/pull-requests/:id" element={<PullRequestDetailPage />} />
           <Route path="/activities" element={<ActivityFeedPage />} />
           <Route path="/:owner/:repo/architecture" element={<RepositoryArchitecturePage />} />
-          <Route path="/:username" element={<UserProfile />} />
+          <Route path="/user/:username" element={<UserProfile />} />
           <Route path="/showcase" element={<ComponentShowcase />} />
           <Route path="/privacy" element={<GitNestPrivacy />} />
           <Route path="/terms" element={<GitNestTerms />} />

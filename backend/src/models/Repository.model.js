@@ -14,7 +14,7 @@ const repositorySchema = new mongoose.Schema(
     },
     description: {
         type: String,
-        enum: '',
+        default: '',
         trim: true,
     },
     visibility: {

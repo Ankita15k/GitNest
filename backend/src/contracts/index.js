@@ -127,7 +127,7 @@ export const contracts = {
   activities: {
     global: { tags: ['Activities'], request: { query: sharedSchemas.paginationQuery }, responses: { 200: sharedSchemas.successEnvelope(activityListData) } },
     user: { tags: ['Activities'], request: { params: sharedSchemas.usernameParam, query: sharedSchemas.paginationQuery }, responses: { 200: sharedSchemas.successEnvelope(activityListData) } },
-    repository: { tags: ['Activities'], request: { params: { type: 'object', additionalProperties: true, properties: { repo: { type: 'string', minLength: 1 } }, required: ['repo'] }, query: sharedSchemas.paginationQuery }, responses: { 200: sharedSchemas.successEnvelope(activityListData) } },
+    repository: { tags: ['Activities'], security: [{ bearerAuth: [] }], request: { params: { type: 'object', additionalProperties: true, properties: { repo: { type: 'string', minLength: 1 } }, required: ['repo'] }, query: sharedSchemas.paginationQuery }, responses: { 200: sharedSchemas.successEnvelope(activityListData) } },
   },
   pullRequests: {
     list: { tags: ['Pull Requests'], request: { query: { type: 'object', additionalProperties: true, properties: { page: { type: 'integer', minimum: 1 }, limit: { type: 'integer', minimum: 1, maximum: 50 }, status: { type: 'string', enum: ['open', 'closed', 'merged', 'all'] }, repository: { type: 'string' }, search: { type: 'string' } } } }, responses: { 200: sharedSchemas.successEnvelope(listPullRequestsData) } },

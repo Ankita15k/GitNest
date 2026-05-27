@@ -27,7 +27,12 @@ export const getRepositoryActivities = asyncHandler(async (req, res) => {
   const { repo } = req.params;
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.min(50, Math.max(1, Number(req.query.limit) || 20));
-  const { activities, pagination } = await getRepositoryFeed({ repo, page, limit });
+  const { activities, pagination } = await getRepositoryFeed({
+    repo,
+    page,
+    limit,
+    currentUser: req.user,
+  });
   sendSuccess(res, 200, {
     activities,
     pagination,
