@@ -2,32 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { loginUser, registerUser, getMe } from '../api/authApi';
 
-const extractUserData = (responseData) => {
-  const payload = responseData?.data ?? responseData;
-
-  if (!payload) {
-    return null;
-  }
-
-  const { _id, username, email, token } = payload;
-  return { _id, username, email, token };
-};
-
 const extractErrorMessage = (error) => {
   if (error?.errors && Array.isArray(error.errors) && error.errors.length > 0) {
     return error.errors.map((err) => err.message).join(', ');
   }
   return error?.message || fallback;
-};
-
-const getFriendlyAuthError = (error, fallbackMessage) => {
-  const message = extractErrorMessage(error);
-
-  if (message && message !== 'An error occurred') {
-    return message;
-  }
-
-  return fallbackMessage;
 };
 
 export const useAuthStore = create(
