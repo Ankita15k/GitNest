@@ -10,6 +10,8 @@ import { sendSuccess } from '../utils/responseHandlers.js';
 import { logActivity } from '../services/activity.service.js';
 import ACTIVITY_TYPES from '../constants/activityTypes.js';
 import paginate, { buildPaginationMeta } from '../utils/paginate.js';
+import { generateReadme } from '../utils/templates/readmeTemplates.js';
+import { generateGitignore } from '../utils/templates/gitignoreTemplates.js';
 
 // DRY helper — resolves a :username param to the owner document's _id.
 // Returns null when the username does not exist so callers can 404 cleanly.
@@ -58,6 +60,19 @@ export const createRepository = asyncHandler(async (req, res, next) => {
     const git = simpleGit(repoPath);
 
     await git.init();
+	  
+	const readmePath = path.join(repoPath, 'README.md');
+	  fs.writeFileSync(
+		  readmePath,
+		  generateReadme(repository, req.user.username)
+	  );
+
+	const gitignorePath = path.join(repoPath, '.gitignore');
+	  fs.writeFileSync(
+		  gitignorePath,
+		  generateGitignore(repository.language)
+	  );
+	  
   } catch (error) {
     await repository.deleteOne();
 
