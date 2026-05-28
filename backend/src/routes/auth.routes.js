@@ -2,8 +2,12 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { register, login, getMe } from '../controllers/auth.controller.js';
 import { protect } from '../middleware/authMiddleware.js';
-import validate from '../middleware/validate.js';
+import validateRequest from '../middleware/validateRequest.js';
 import { registerValidator, loginValidator } from '../validators/auth.validators.js';
+import schemaValidator from '../middleware/schemaValidator.js';
+import { contracts } from '../contracts/index.js';
+import { sendError } from '../utils/responseHandlers.js';
+import ERROR_CODES from '../constants/errorCodes.js';
 
 const router = express.Router();
 
@@ -122,4 +126,3 @@ router.post('/login', login);
 router.get('/me', protect, getMe);
 
 export default router;
-

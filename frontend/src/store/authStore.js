@@ -2,145 +2,171 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { loginUser, registerUser, getMe } from '../api/authApi';
 
-/**
- * Helper function to extract and validate user data from API response
- * Ensures safe access to nested data structure
- */
 const extractUserData = (responseData) => {
-  if (!responseData || !responseData.data) {
+  const payload = responseData?.data ?? responseData;
+
+  if (!payload) {
     return null;
   }
-  const { _id, username, email, token } = responseData.data;
+
+  const { _id, username, email, token } = payload;
   return { _id, username, email, token };
 };
 
-/**
- * Helper function to extract error message from API error response
- */
 const extractErrorMessage = (error) => {
-  if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
-    return error.response.data.errors.map((err) => err.message).join(', ');
+  if (error?.errors && Array.isArray(error.errors) && error.errors.length > 0) {
+    return error.errors.map((err) => err.message).join(', ');
   }
-  return error.response?.data?.message || error.message || 'An error occurred';
+  return error?.message || fallback;
+};
+
+const getFriendlyAuthError = (error, fallbackMessage) => {
+  const message = extractErrorMessage(error);
+
+  if (message && message !== 'An error occurred') {
+    return message;
+  }
+
+  return fallbackMessage;
 };
 
 export const useAuthStore = create(
   persist(
     (set) => ({
+      // state
       user: null,
       token: null,
       isAuthenticated: false,
       loading: false,
       error: null,
 
-      /**
-       * Login with email and password
-       * Stores user data and token in persistent storage
-       */
+      // login
       login: async (email, password) => {
-        set({ loading: true, error: null });
+        set({
+          loading: true,
+          error: null,
+        });
+
         try {
-          const res = await loginUser({ email, password });
-          const userData = extractUserData(res);
-
-          if (!userData?.token) {
-            throw new Error('Invalid response: token not found');
-          }
-
-          set({
-            user: { _id: userData._id, username: userData.username, email: userData.email },
-            token: userData.token,
-            isAuthenticated: true,
-            loading: false,
+          const res = await loginUser({
+            email,
+            password,
           });
-        } catch (error) {
-          const errorMessage = extractErrorMessage(error);
-          set({
-            error: errorMessage,
-            loading: false,
-          });
-          throw error;
-        }
-      },
-
-      /**
-       * Register with username, email, and password
-       * Automatically logs in user after successful registration
-       */
-      register: async (userData) => {
-        set({ loading: true, error: null });
-        try {
-          const res = await registerUser(userData);
-          const extractedData = extractUserData(res);
-
-          if (!extractedData?.token) {
-            throw new Error('Invalid response: token not found');
-          }
 
           set({
             user: {
-              _id: extractedData._id,
-              username: extractedData.username,
-              email: extractedData.email,
+              _id: res._id,
+              username: res.username,
+              email: res.email,
             },
-            token: extractedData.token,
+            token: res.token,
             isAuthenticated: true,
-            loading: false,
+            error: null,
           });
+
+          return res;
         } catch (error) {
-          const errorMessage = extractErrorMessage(error);
           set({
-            error: errorMessage,
+            error: extractErrorMessage(error),
+          });
+
+          throw error;
+        } finally {
+          set({
             loading: false,
           });
-          throw error;
         }
       },
 
-      /**
-       * Logout: Clear all auth state
-       */
+      // register
+      register: async (userData) => {
+        set({
+          loading: true,
+          error: null,
+        });
+
+        try {
+          const res = await registerUser(userData);
+
+          set({
+            user: {
+              _id: res._id,
+              username: res.username,
+              email: res.email,
+            },
+            token: res.token,
+            isAuthenticated: true,
+            error: null,
+          });
+
+          return res;
+        } catch (error) {
+          set({
+            error: extractErrorMessage(error),
+          });
+
+          throw error;
+        } finally {
+          set({
+            loading: false,
+          });
+        }
+      },
+
+      // logout
       logout: () => {
-        set({ user: null, token: null, isAuthenticated: false, error: null });
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          error: null,
+          loading: false,
+        });
       },
 
-      /**
-       * Clear error message
-       */
+      // clear error
       clearError: () => {
-        set({ error: null });
+        set({
+          error: null,
+        });
       },
 
-      /**
-       * Check authentication: Verify token is still valid with backend
-       * Called on app initialization to restore auth state safely
-       */
+      // check auth
       checkAuth: async () => {
-        set({ loading: true, error: null });
+        set({
+          loading: true,
+          error: null,
+        });
+
         try {
           const res = await getMe();
-          if (res.data) {
-            set({
-              user: res.data,
-              isAuthenticated: true,
-              loading: false,
-            });
-          } else {
-            throw new Error('Invalid response structure');
-          }
+
+          set({
+            user: res,
+            isAuthenticated: true,
+          });
         } catch {
-          // Token is invalid or expired - clear auth state
           set({
             user: null,
             token: null,
             isAuthenticated: false,
+          });
+        } finally {
+          set({
             loading: false,
           });
         }
       },
     }),
     {
-      name: 'auth-storage', // local storage key
+      name: "auth-storage",
+
+      // persist only required state
+      partialize: (state) => ({
+        user: state.user,
+        token: state.token,
+        isAuthenticated: state.isAuthenticated,
+      }),
     }
   )
 );

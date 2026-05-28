@@ -1,63 +1,79 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
+import { ArrowLeft, SearchX } from "lucide-react";
 
-const NotFound = () => {
+export default function NotFound() {
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0A0F1C] flex flex-col items-center justify-center text-zinc-900 dark:text-slate-200 p-6 font-sans selection:bg-blue-500/30 transition-colors">
-      <div className="max-w-md w-full flex flex-col items-center text-center space-y-8">
-        
-        {/* Logo/Icon Area */}
-        <div className="relative">
-          <div className="w-20 h-20 md:w-24 md:h-24 bg-[#111827]/80 rounded-2xl md:rounded-[1.5rem] flex items-center justify-center border border-slate-700/30 shadow-[0_4px_20px_rgba(0,0,0,0.2)] backdrop-blur-md">
-            <span className="text-4xl md:text-[2.75rem] font-bold text-slate-300 tracking-tighter" style={{ fontFamily: 'sans-serif' }}>
-              G
-            </span>
-          </div>
-          <div className="absolute -top-1 -right-1 w-3.5 h-3.5 md:w-4 md:h-4 bg-slate-400 rounded-full border-[3px] border-[#0A0F1C]"></div>
-        </div>
+    <div className="relative min-h-screen overflow-hidden bg-[#f6f8f7] dark:bg-[#07090d] flex items-center justify-center px-6">
 
-        {/* 404 Text */}
-        <h1 className="text-7xl md:text-9xl font-black tracking-tighter text-slate-100 flex items-center justify-center select-none">
-          4<span className="text-slate-500/80 mx-1 md:mx-2">0</span>4
-        </h1>
+      {/* Background */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
 
-        {/* Messaging */}
-        <div className="space-y-4">
-          <h2 className="text-xl md:text-2xl font-bold text-slate-100 tracking-wide">
-            GitNest Disconnected
-          </h2>
-          <p className="text-sm md:text-base text-slate-400/80 leading-relaxed max-w-[340px] mx-auto font-light">
-            It looks like the repository you're looking for doesn't exist or has been moved. Let's get your code journey back on track.
-          </p>
-        </div>
+        <div className="absolute -top-[200px] left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full bg-[radial-gradient(circle,rgba(0,220,130,0.12),transparent_60%)] blur-3xl" />
 
-        {/* Actions */}
-        <div className="pt-2 md:pt-4 w-full sm:w-auto">
-          <Link 
-            to="/" 
-            className="group w-full sm:w-auto px-7 py-3 bg-slate-100 text-slate-900 rounded-xl font-medium text-sm md:text-base transition-all duration-300 flex items-center justify-center gap-2.5 shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:bg-white hover:shadow-[0_0_25px_rgba(255,255,255,0.25)] hover:-translate-y-0.5 active:translate-y-0"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              strokeWidth={2} 
-              stroke="currentColor" 
-              className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:-translate-x-1"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-            </svg>
-            Go to Home
-          </Link>
-        </div>
+        <div className="absolute top-[20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-cyan-400/10 blur-3xl" />
 
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right,#000 1px,transparent 1px), linear-gradient(to bottom,#000 1px,transparent 1px)",
+            backgroundSize: "80px 80px",
+          }}
+        />
       </div>
 
-      {/* Footer text */}
-      <div className="absolute bottom-8 text-[10px] md:text-xs font-mono text-slate-500/50 tracking-[0.2em] uppercase select-none">
-        ERROR_CODE: REPOSITORY_NOT_FOUND // GITNEST_V1.0
+      {/* Card */}
+      <div className="w-full h-screen rounded-none border border-white/50 dark:border-white/10 bg-white/75 dark:bg-[#0c0f14]/70 backdrop-blur-2xl shadow-[0_30px_80px_rgba(15,23,42,0.12)] flex flex-col items-center justify-center text-center px-6">
+
+        {/* Badge */}
+        <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full border border-[#00dc82]/10 bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl text-[#1edb8c] shadow-lg mb-8">
+          <SearchX className="w-4 h-4" />
+          <span className="text-sm font-medium">
+            ERROR • ROUTE_NOT_FOUND
+          </span>
+        </div>
+
+        {/* 404 */}
+        <h1 className="text-[110px] md:text-[180px] leading-none font-black tracking-[-0.08em] bg-gradient-to-r from-[#00dc82] via-[#36e4da] to-[#4fd1ff] bg-clip-text text-transparent">
+          404
+        </h1>
+
+        {/* Title */}
+        <h2 className="text-3xl md:text-5xl font-black tracking-tight text-[#071138] dark:text-white mt-4">
+          GitNest Disconnected
+        </h2>
+
+        {/* Description */}
+        <p className="text-lg leading-8 text-[#64748b] dark:text-zinc-400 max-w-2xl mx-auto mt-6">
+          The page you are looking for could not be found. It may have been
+          moved, deleted, or the URL might be incorrect.
+        </p>
+
+        {/* Actions */}
+        <div className="flex flex-wrap justify-center gap-5 mt-10">
+
+          <Link
+            to="/"
+            className="group px-8 py-4 rounded-3xl bg-gradient-to-r from-[#00dc82] to-[#36e4da] text-black font-bold shadow-[0_15px_45px_rgba(0,220,130,0.30)] hover:-translate-y-1 transition-all flex items-center gap-3"
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            Return Home
+          </Link>
+
+          <Link
+            to="/docs"
+            className="px-8 py-4 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl text-zinc-700 dark:text-zinc-200 hover:shadow-xl transition-all"
+          >
+            View Documentation
+          </Link>
+
+        </div>
+
+        {/* Footer */}
+        <div className="mt-10 text-xs tracking-[0.3em] uppercase text-zinc-500">
+          GitNest • Repository Not Found
+        </div>
       </div>
     </div>
   );
-};
-
-export default NotFound;
+}

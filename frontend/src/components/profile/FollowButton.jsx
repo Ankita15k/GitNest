@@ -21,9 +21,7 @@ const FollowButton = ({ username, isFollowing }) => {
     },
     onError: (err) => {
       setFollowing((prev) => !prev);
-      const data = err.response?.data;
-      const message = typeof data === 'string' ? data : data?.message;
-      addToast({ message: message || 'Something went wrong', type: 'error' });
+      addToast({ message: err?.message || 'Something went wrong', type: 'error' });
     },
   });
 

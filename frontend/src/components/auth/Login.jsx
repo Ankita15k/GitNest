@@ -83,14 +83,10 @@ const Login = () => {
 
       navigate("/");
     } catch (err) {
-      // Field-level API errors
-      if (
-        err.response?.data?.errors &&
-        Array.isArray(err.response.data.errors)
-      ) {
+      if (err?.errors && Array.isArray(err.errors)) {
         const fieldErrors = {};
-        err.response.data.errors.forEach((error) => {
-          fieldErrors[error.field] = error.message;
+        err.errors.forEach((apiError) => {
+          fieldErrors[apiError.field] = apiError.message;
         });
         setValidationErrors(fieldErrors);
       }
@@ -213,7 +209,7 @@ const Login = () => {
                     onBlur={handleBlur}
                     aria-invalid={!!validationErrors.email}
                     aria-describedby="email-error"
-                    placeholder="you@example.com"
+                    placeholder="Enter your email"
                     className={`w-full px-3 py-2 pr-11 rounded-md border outline-none transition focus:ring-2 focus:ring-indigo-500 ${validationErrors.email
                       ? "border-red-500"
                       : "border-zinc-200 dark:border-white/10"
@@ -294,7 +290,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={!isFormValid || loading}
-                  className="w-full py-2.5 rounded-md text-white font-medium bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                  className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Signing In..." : "Sign In"}
                 </button>

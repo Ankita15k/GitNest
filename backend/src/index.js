@@ -1,6 +1,10 @@
 import 'dotenv/config';
+import connectDB from './config/db.js';
+import createApp from './app.js';
+
 if (!process.env.JWT_SECRET) {
-  throw new Error('FATAL: JWT_SECRET environment variable is not set. Refusing to start.');
+  console.error('FATAL: JWT_SECRET is not configured. Server cannot start securely.');
+  process.exit(1);
 }
 
 import express from 'express'
@@ -38,15 +42,19 @@ app.use('/api/v1/repositories', repositoryRoutes);
 app.use('/api/v1/activities', activityRoutes);
 app.use(errorHandler);
 
-// 404 handler - must come after all routes
-app.use((req, res, next) => {
-  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
-});
+await connectDB();
 
-// Centralized error handler - must be last
-app.use(errorHandler);
+const startServer = async () => {
+  try {
+    await connectDB();
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to connect database:', error);
+    process.exit(1);
+  }
+};
 
+startServer();

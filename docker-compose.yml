@@ -1,33 +1,52 @@
-version: '3.8'
-
 services:
   mongodb:
-    image: mongo:latest
+    image: mongo:6
     container_name: gitnest-mongo
+    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
 
   redis:
     image: redis:alpine
     container_name: gitnest-redis
+    restart: unless-stopped
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   backend:
     build:
       context: ./backend
     container_name: gitnest-backend
+    restart: unless-stopped
     ports:
       - "5000:5000"
+    env_file:
+      - .env
     environment:
       - PORT=5000
       - MONGO_URI=mongodb://mongodb:27017/gitnest
+      - REDIS_URL=redis://redis:6379
       - NODE_ENV=development
+      - FRONTEND_URL=http://localhost:5173
     depends_on:
-      - mongodb
-      - redis
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -36,6 +55,7 @@ services:
     build:
       context: ./frontend
     container_name: gitnest-frontend
+    restart: unless-stopped
     ports:
       - "5173:5173"
     environment:
@@ -44,7 +64,7 @@ services:
       - backend
     volumes:
       - ./frontend:/app
-      - /app/node_modules 
+      - /app/node_modules
 
 volumes:
   mongo-data:

@@ -3,29 +3,7 @@ import Activity from '../models/Activity.model.js';
 import Repository from '../models/Repository.model.js';
 import User from '../models/User.model.js';
 import AppError from '../utils/AppError.js';
-
-const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 20;
-const MAX_LIMIT = 50;
-
-const normalizePagination = (page, limit) => {
-  const parsedPage = Number(page ?? DEFAULT_PAGE);
-  const parsedLimit = Number(limit ?? DEFAULT_LIMIT);
-
-  if (!Number.isInteger(parsedPage) || parsedPage < 1) {
-    throw new AppError('Invalid page parameter', 400);
-  }
-
-  if (!Number.isInteger(parsedLimit) || parsedLimit < 1 || parsedLimit > MAX_LIMIT) {
-    throw new AppError('Invalid limit parameter', 400);
-  }
-
-  return {
-    page: parsedPage,
-    limit: parsedLimit,
-    skip: (parsedPage - 1) * parsedLimit,
-  };
-};
+import paginate from '../utils/paginate.js';
 
 const safeActivityQuery = (query) =>
   query
@@ -33,7 +11,7 @@ const safeActivityQuery = (query) =>
     .populate('repository', 'name');
 
 const buildActivityPage = async (filter, page, limit) => {
-  const pagination = normalizePagination(page, limit);
+  const pagination = paginate(page, limit);
   const [activities, totalItems] = await Promise.all([
     safeActivityQuery(
       Activity.find(filter).sort({ createdAt: -1 }).skip(pagination.skip).limit(pagination.limit)
@@ -53,11 +31,17 @@ const buildActivityPage = async (filter, page, limit) => {
 };
 
 export const logActivity = async (activityPayload) => {
+  if (activityPayload.repository) {
+    const repo = await Repository.findById(activityPayload.repository).select('visibility');
+    if (repo && repo.visibility === 'private') {
+      activityPayload.visibility = 'private';
+    }
+  }
   return Activity.create(activityPayload);
 };
 
 export const getGlobalFeed = async ({ page, limit } = {}) => {
-  return buildActivityPage({}, page, limit);
+  return buildActivityPage({ visibility: 'public' }, page, limit);
 };
 
 export const getUserFeed = async ({ username, page, limit } = {}) => {
@@ -74,16 +58,37 @@ export const getUserFeed = async ({ username, page, limit } = {}) => {
   return buildActivityPage({ actor: user._id }, page, limit);
 };
 
-export const getRepositoryFeed = async ({ repo, page, limit } = {}) => {
+export const getRepositoryFeed = async ({ repo, page, limit, currentUser } = {}) => {
   if (!repo) {
     throw new AppError('Repository parameter is required', 400);
   }
 
-  const repository = mongoose.Types.ObjectId.isValid(repo)
-    ? await Repository.findById(repo)
-    : await Repository.findOne({ name: repo });
+  let repository = null;
+
+  if (mongoose.Types.ObjectId.isValid(repo)) {
+    repository = await Repository.findById(repo);
+  } else {
+    // Backwards-compatible string lookup is restricted to public repos only.
+    // This prevents cross-tenant/private repo leaks when multiple repos share a name.
+    const matches = await Repository.find({ name: repo, visibility: 'public' })
+      .select('_id visibility owner')
+      .limit(2);
+
+    if (matches.length > 1) {
+      throw new AppError('Repository lookup is ambiguous. Use repository id.', 400);
+    }
+
+    repository = matches[0] || null;
+  }
 
   if (!repository) {
+    throw new AppError('Repository not found', 404);
+  }
+
+  if (
+    repository.visibility === 'private' &&
+    (!currentUser || repository.owner.toString() !== currentUser.id)
+  ) {
     throw new AppError('Repository not found', 404);
   }
 

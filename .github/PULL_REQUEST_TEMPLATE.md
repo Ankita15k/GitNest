@@ -1,6 +1,5 @@
+## Title - <type>: <brief description>
 <!--
-Title format - <type>: <brief description>
-
 | Type  | Use when                          |
 |-------|-----------------------------------|
 | feat  | Adding a new feature              |
@@ -22,8 +21,6 @@ docs: update setup instructions
 
 ## Changes Made
 <!-- List specific changes made in this PR -->
-- 
-- 
 
 ## Related Issue
 <!-- Every PR must be linked to an issue -->

@@ -21,6 +21,7 @@ First of all — **Thank you** for considering contributing to GitNest! This pro
 - [Commit Message Format](#commit-message-format)
 - [Pull Request Guidelines](#pull-request-guidelines)
 - [Coding Standards](#coding-standards)
+- [Backend Security Conventions](#backend-security-conventions)
 - [GSSoC Points System](#gssoc-points-system)
 - [Getting Help](#getting-help)
 
@@ -273,6 +274,35 @@ Fill out the PR template completely. Incomplete PR descriptions will be sent bac
 - Use `AppError` for all operational errors with appropriate status codes
 - Validate all inputs using `express-validator` before hitting the controller
 - Use the `sendSuccess` / `sendPaginated` response helpers for consistent API responses
+
+### Backend Security Conventions
+
+These rules exist to prevent a class of bugs that look harmless in isolation but create serious attack surface when combined with predictable identifier formats.
+
+**Public routes must never accept internal database IDs as route parameters.**
+
+- Use only human-readable identifiers — `:username`, `:repoName` — on any route that is accessible without authentication or whose response exposes user data.
+- MongoDB ObjectIds encode the server's startup timestamp in their first four bytes, making sequential enumeration of all registered users or repositories feasible with a modest number of requests. Accepting an ObjectId on a public route therefore leaks the full user table to an unauthenticated caller.
+- If an internal service, background job, or admin tool needs to look up a document by `_id`, it must call the Mongoose model directly — `User.findById(id)` — rather than routing that call through a public HTTP endpoint.
+
+**All route parameters must pass through a validator before the controller uses them.**
+
+- The existing `express-validator` chain documented above applies to body fields. The same requirement holds for `:param` values: every public route must declare a `param()` validator that rejects unexpected shapes (ObjectId-like hex strings, oversized values, characters outside the allowed set) before the request reaches the controller.
+- Placing validation only in the controller, or checking `mongoose.Types.ObjectId.isValid()` inside the controller, is not sufficient — it mixes input sanitisation with business logic and makes the sanitisation easy to bypass by future edits.
+
+**Example — correct pattern for a username lookup route:**
+
+```js
+// router
+router.get('/:username', validate(usernameParamValidator), getUserProfile);
+
+// controller — queries only by the human-readable field
+export const getUserProfile = asyncHandler(async (req, res, next) => {
+  const user = await User.findOne({ username: req.params.username.toLowerCase() });
+  if (!user) return next(new AppError('User not found', 404));
+  sendSuccess(res, 200, user, 'User profile fetched successfully');
+});
+```
 
 ### Frontend (React)
 

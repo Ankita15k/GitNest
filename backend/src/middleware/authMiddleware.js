@@ -19,10 +19,16 @@ export const protect = asyncHandler(async (req, res, next) => {
 
   try {
     if (!process.env.JWT_SECRET) {
-      throw new Error('JWT_SECRET is not defined in the environment variables');
+      return next(new AppError('Server misconfiguration: JWT_SECRET missing', 500));
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id).select('-password');
+    const user = await User.findById(decoded.id).select('-password');
+
+    if (!user) {
+      return next(new AppError('User associated with token no longer exists', 401));
+    }
+
+    req.user = user;
     next();
   } catch (error) {
     return next(new AppError('Not authorized to access this route', 401));

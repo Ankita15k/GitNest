@@ -3,24 +3,14 @@ import User from '../models/User.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/AppError.js';
 import { sendSuccess } from '../utils/responseHandlers.js';
-import { logActivity } from '../services/activity.service.js';
+import { logActivitySafely } from '../utils/logActivitySafely.js';
 import ACTIVITY_TYPES from '../constants/activityTypes.js';
+import paginate, { buildPaginationMeta } from '../utils/paginate.js';
 
-// Get user profile by ID or username
 export const getUserProfile = asyncHandler(async (req, res, next) => {
   const { username } = req.params;
 
-  let user;
-
-  // If the parameter is a valid Mongoose ObjectId, attempt to find by ID first
-  if (mongoose.Types.ObjectId.isValid(username)) {
-    user = await User.findById(username);
-  }
-
-  // Fallback to finding by username if not found by ID or if ID was invalid
-  if (!user) {
-    user = await User.findOne({ username: username.toLowerCase() });
-  }
+  const user = await User.findOne({ username: username.toLowerCase() });
 
   if (!user) {
     return next(new AppError('User not found', 404));
@@ -29,36 +19,89 @@ export const getUserProfile = asyncHandler(async (req, res, next) => {
   sendSuccess(res, 200, user, 'User profile fetched successfully');
 });
 
-// Follow a user
+// Follow a user with transaction-safe atomicity
 export const followUser = asyncHandler(async (req, res, next) => {
   const target = await User.findOne({ username: req.params.username.toLowerCase() });
   if (!target) return next(new AppError('User not found', 404));
   if (target._id.equals(req.user._id)) return next(new AppError('You cannot follow yourself', 400));
 
-  const alreadyFollowing = target.followers.some((id) => id.equals(req.user._id));
-  if (alreadyFollowing) return next(new AppError('Already following this user', 400));
+  try {
+    const targetResult = await User.updateOne(
+      { _id: target._id, followers: { $ne: req.user._id } },
+      { $addToSet: { followers: req.user._id } }
+    );
 
-  await User.findByIdAndUpdate(target._id, { $push: { followers: req.user._id } });
-  await User.findByIdAndUpdate(req.user._id, { $push: { following: target._id } });
+    if (targetResult.matchedCount === 0) {
+      return next(new AppError('User not found', 404));
+    }
+    if (targetResult.modifiedCount === 0) {
+      return next(new AppError('Already following this user', 400));
+    }
 
-  sendSuccess(res, 200, null, 'Followed successfully');
+    const selfResult = await User.findByIdAndUpdate(
+      req.user._id,
+      { $addToSet: { following: target._id } },
+      { session, new: true }
+    );
+
+    if (!selfResult) {
+      await session.abortTransaction();
+      return next(new AppError('User not found', 404));
+    }
+
+    await logActivitySafely({
+      actor: req.user.id,
+      type: ACTIVITY_TYPES.USER_FOLLOWED,
+      targetUser: target._id,
+      metadata: { targetUsername: target.username },
+    });
+
+    sendSuccess(res, 200, null, 'Followed successfully');
+  } catch (error) {
+    return next(new AppError('Follow operation failed', 500));
+  }
 });
 
-// Unfollow a user
+// Unfollow a user with transaction-safe atomicity
 export const unfollowUser = asyncHandler(async (req, res, next) => {
   const target = await User.findOne({ username: req.params.username.toLowerCase() });
   if (!target) return next(new AppError('User not found', 404));
   if (target._id.equals(req.user._id)) return next(new AppError('You cannot unfollow yourself', 400));
 
-  await User.findByIdAndUpdate(target._id, { $pull: { followers: req.user._id } });
-  await User.findByIdAndUpdate(req.user._id, { $pull: { following: target._id } });
+  try {
+    const targetResult = await User.updateOne(
+      { _id: target._id },
+      { $pull: { followers: req.user._id } }
+    );
 
-  sendSuccess(res, 200, null, 'Unfollowed successfully');
+    const selfResult = await User.updateOne(
+      { _id: req.user._id },
+      { $pull: { following: target._id } }
+    );
+
+    if (targetResult.matchedCount === 0 || selfResult.matchedCount === 0) {
+      return next(new AppError('User not found', 404));
+    }
+    if (targetResult.modifiedCount === 0 && selfResult.modifiedCount === 0) {
+      return next(new AppError('You were not following this user', 400));
+    }
+
+    await logActivitySafely({
+      actor: req.user.id,
+      type: ACTIVITY_TYPES.USER_UNFOLLOWED,
+      targetUser: target._id,
+      metadata: { targetUsername: target.username },
+    });
+
+    sendSuccess(res, 200, null, 'Unfollowed successfully');
+  } catch (error) {
+    return next(new AppError('Unfollow operation failed', 500));
+  }
 });
 
 // Update current user's profile
 export const updateProfile = asyncHandler(async (req, res, next) => {
-  const { bio, location, website, avatarUrl } = req.body;
+  const { bio, location, website, avatarUrl, displayName, company, twitterHandle } = req.body;
 
   const user = await User.findById(req.user._id);
 
@@ -89,21 +132,32 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
     changedFields.push('avatarUrl');
   }
 
+  if (displayName !== undefined && displayName !== user.displayName) {
+    user.displayName = displayName;
+    changedFields.push('displayName');
+  }
+
+  if (company !== undefined && company !== user.company) {
+    user.company = company;
+    changedFields.push('company');
+  }
+
+  if (twitterHandle !== undefined && twitterHandle !== user.twitterHandle) {
+    user.twitterHandle = twitterHandle;
+    changedFields.push('twitterHandle');
+  }
+
   await user.save();
 
   if (changedFields.length > 0) {
-    try {
-      await logActivity({
-        actor: req.user.id,
-        type: ACTIVITY_TYPES.PROFILE_UPDATED,
-        targetUser: req.user.id,
-        metadata: {
-          changedFields,
-        },
-      });
-    } catch {
-      // Prevent activity logging failures from blocking profile updates
-    }
+    await logActivitySafely({
+      actor: req.user.id,
+      type: ACTIVITY_TYPES.PROFILE_UPDATED,
+      targetUser: req.user.id,
+      metadata: {
+        changedFields,
+      },
+    });
   }
 
   sendSuccess(res, 200, user, 'Profile updated successfully');
@@ -111,20 +165,42 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
 
 // Get followers of a user
 export const getFollowers = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ username: req.params.username.toLowerCase() })
-  .populate('followers', 'username avatarUrl bio');
+  const user = await User.findOne({ username: req.params.username.toLowerCase() });
 
-  if(!user) return next(new AppError('User not found', 404));
+  if (!user) return next(new AppError('User not found', 404));
 
-  sendSuccess(res, 200, user.followers, 'Followers fetched successfully');
+  const { page, limit, skip } = paginate(req.query.page, req.query.limit);
+
+  const [followers, totalCount] = await Promise.all([
+    User.find({ _id: { $in: user.followers } })
+      .select('username avatarUrl bio')
+      .skip(skip)
+      .limit(limit),
+    User.countDocuments({ _id: { $in: user.followers } }),
+  ]);
+
+  const pagination = buildPaginationMeta(page, limit, totalCount);
+
+  sendSuccess(res, 200, { followers, pagination }, 'Followers fetched successfully');
 });
 
 // Get following of a user
 export const getFollowing = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ username: req.params.username.toLowerCase() })
-  .populate('following', 'username avatarUrl bio');
+  const user = await User.findOne({ username: req.params.username.toLowerCase() });
 
   if (!user) return next(new AppError('User not found', 404));
 
-  sendSuccess(res, 200, user.following, 'Following fetched successfully');
+  const { page, limit, skip } = paginate(req.query.page, req.query.limit);
+
+  const [following, totalCount] = await Promise.all([
+    User.find({ _id: { $in: user.following } })
+      .select('username avatarUrl bio')
+      .skip(skip)
+      .limit(limit),
+    User.countDocuments({ _id: { $in: user.following } }),
+  ]);
+
+  const pagination = buildPaginationMeta(page, limit, totalCount);
+
+  sendSuccess(res, 200, { following, pagination }, 'Following fetched successfully');
 });
