@@ -13,6 +13,8 @@ import userRoutes from './routes/user.routes.js';
 import healthRoute from './routes/health.route.js';
 import AppError from './utils/AppError.js';
 import errorHandler from './middleware/errorHandler.js';
+import swaggerUi from "swagger-ui-express";
+import { specs } from "../docs/swagger.js";
 import repositoryRoutes from './routes/repository.routes.js';
 import activityRoutes from './routes/activity.routes.js';
 
@@ -26,8 +28,7 @@ app.use(cors({
 }));
 // Middleware
 app.use(express.json());
-app.use(mongoSanitize());
-app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // Routes
 app.use('/health', healthRoute);
