@@ -3,9 +3,9 @@
 
 <img src="frontend/public/logo.png" width="140" alt="GitNest Logo"/>
 
-# GitNest
+# GitNest - Lightweight Collaborative Code Hosting Platform
 
-### 🚀 Lightweight Collaborative Code Hosting Platform
+
 
 <p align="center">
   <strong>A modern GitHub-inspired collaborative coding platform built with the MERN Stack.</strong>
@@ -22,88 +22,33 @@ Create repositories, browse code, manage issues, review pull requests, and colla
 [![Report Bug](https://img.shields.io/badge/🐛_Report_Bug-red?style=for-the-badge)](../../issues/new?template=bug_report.md)
 [![Request Feature](https://img.shields.io/badge/✨_Request_Feature-purple?style=for-the-badge)](../../issues/new?template=feature_request.md)
 
-</p>
-
-
-<!-- Status Badges -->
 <img src="https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge" alt="version"/>
 <img src="https://img.shields.io/badge/PRs-welcome-teal?style=for-the-badge" alt="PRs Welcome"/>
 <img src="https://img.shields.io/github/repo-size/Ankita15k/GitNest?style=for-the-badge" alt="Repo_Size"/>
 <img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge" alt="MIT License"/>
 <img src="https://img.shields.io/badge/stack-MERN-pink?style=for-the-badge" alt="MERN Stack"/>
 
+</p>
+
+
+<!-- Status Badges -->
+
+
+
+  <img src="https://api.visitorbadge.io/api/visitors?path=Ankita15k%2FGitNest%20&countColor=%23263759&style=flat" alt="Visitors"/>
+  <br/> <br/>
+
 <!-- Social & GitHub Stats -->
 <p align="center">
-  <img src="https://api.visitorbadge.io/api/visitors?path=Ankita15k%2FGitNest%20&countColor=%23263759&style=flat" alt="Visitors"/>
   <a href="https://github.com/ellerbrock/open-source-badges/"><img src="https://badges.frapsoft.com/os/v1/open-source.svg?v=103" alt="Open Source Love svg1"/></a>
-  <img src="https://img.shields.io/github/forks/Ankita15k/GitNest" alt="GitHub forks"/>
+  <img src="https://img.shields.io/github/forks/Ankita15k/GitNest" alt="GitHub forks"/> 
   <img src="https://img.shields.io/github/stars/Ankita15k/GitNest" alt="GitHub Repo stars"/>
   <img src="https://img.shields.io/github/contributors/Ankita15k/GitNest" alt="GitHub contributors"/>
   <img src="https://img.shields.io/github/last-commit/Ankita15k/GitNest" alt="GitHub last commit"/>
   <a href="https://discord.gg/QHSNsRuA"><img src="https://img.shields.io/discord/1505228467086823504?color=5865F2&label=Join%20Discord&logo=discord&logoColor=white" alt="Join Discord"/></a>
 </p>
 
-
 </div>
-
----
-
-## 📸 Screenshots
-
-| **Home Page** | **Platform Features** | **Contribution** |
-|------------|------------|------------|
-|<img height="1000" alt="image" src="https://github.com/user-attachments/assets/be8f7a4a-df2b-4d98-8df7-456de9b5b2d5" /> | <img height="1000" alt="image" src="https://github.com/user-attachments/assets/1fa87b65-23ba-4896-9594-36643af2cf01" />|<img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/5d0afdfe-69a5-4ca1-8a18-c1574d4f82f5" />|
-
-### Component Showcase
-
-GitNest features a comprehensive set of reusable UI components with **full dark mode support**. All components are built with TailwindCSS and leverage React hooks for optimal performance.
-
-#### Empty States
-The platform includes elegant empty state components that guide users when no data is available:
-
-| Empty Repository | Empty Issues | Empty Pull Requests |
-|---|---|---|
-| Shown when user has no repositories | Shown when repository has no issues | Shown when repository has no PRs |
-| Encourages users to create their first repo | Prompts users to create an issue | Prompts users to create a PR |
-
-#### Stat Cards
-Repository statistics are displayed using responsive stat card components:
-
-```
-Stars    │ Forks    │ Watchers │ Language
-1,234    │   456    │   789    │ TypeScript
-```
-
-Each stat card is fully customizable with different variants (primary, success, warning, danger) and includes icons from Lucide React.
-
-#### User Cards
-User profile cards display:
-- User avatar and profile information
-- Bio and location details
-- Account age
-- Follower/following counts
-- Follow/Unfollow functionality
-- Quick action menu
-
-#### Loading States
-While data loads, skeleton components provide visual feedback:
-- **StatCardSkeleton** — Animated loader for stat cards
-- **UserCardSkeleton** — Full user card placeholder with shimmer effect
-
-### Dark Mode
-
-All components support **seamless light and dark themes**:
-
-```
-Light Theme          │  Dark Theme
-White backgrounds    │  Dark slate backgrounds
-Dark text           │  Light text
-Light borders       │  Dark borders
-```
-
-The dark mode is implemented using TailwindCSS `dark:` variants, ensuring perfect consistency across the entire platform.
-
-**View Component Showcase:** Navigate to `/showcase` to see all components in action with a live theme toggle!
 
 ---
 
@@ -234,21 +179,29 @@ Make sure you have the following installed:
 
 **1. Fork and clone the repository**
 
+Fork this repo first using the Fork button above, then:
+
 ```bash
-# Fork this repo first using the Fork button above, then:
+
 git clone https://github.com/<your-username>/gitnest.git
-cd gitnest
+
+cd GitNest
 ```
 
 **2. Set up environment variables**
 
 ```bash
 # Backend env variables
-cp backend/.env.example backend/.env
-# Open backend/.env and fill in your values
 
+cp backend/.env.example backend/.env
+
+# Open backend/.env and fill in your values
+```
+```
 # Frontend env variables
+
 cp frontend/.env.example frontend/.env
+
 # Open frontend/.env and fill in your values
 ```
 
@@ -256,18 +209,14 @@ cp frontend/.env.example frontend/.env
 
 ```bash
 # Backend
-cd backend && npm install && npm run dev
 
+cd backend && npm install && npm start
+```
+```
 # Frontend (in a new terminal)
+
 cd frontend && npm install && npm run dev
 ```
-
-**Environment variables**
-
-- `backend/.env` should include `MONGO_URI`, `JWT_SECRET`, and `JWT_EXPIRE`.
-- Optional production settings: `TRUST_PROXY=1` (behind reverse proxy) and `CORS_ORIGIN` (comma-separated origins).
-- Optional security settings: `REQUEST_BODY_LIMIT` (e.g., `10kb`), `API_RATE_LIMIT_MAX`, `API_RATE_LIMIT_WINDOW_MS`, `AUTH_RATE_LIMIT_MAX`, `AUTH_RATE_LIMIT_WINDOW_MS`, `LOG_REQUESTS=1`.
-- `frontend/.env` should include `VITE_API_BASE_URL` (for example: `http://localhost:5000`).
 
 **4. Open the app**
 
@@ -282,7 +231,9 @@ You can easily run the entire application (Frontend, Backend, MongoDB, Redis) us
 1. Ensure Docker Desktop is running.
 2. Run the following command in the root of the project:
    ```bash
+   
    docker-compose up --build
+   
    ```
 3. The application will be available at:
    - Frontend: http://localhost:5173
