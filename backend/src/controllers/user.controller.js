@@ -1,26 +1,16 @@
-import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 import User from '../models/User.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/AppError.js';
 import { sendSuccess } from '../utils/responseHandlers.js';
-import { logActivitySafely } from '../utils/logActivitySafely.js';
-import ACTIVITY_TYPES from '../constants/activityTypes.js';
 import paginate, { buildPaginationMeta } from '../utils/paginate.js';
+import SagaOrchestrator from '../services/saga/sagaOrchestrator.js';
+import eventEmitter from '../events/eventEmitter.js';
 
 export const getUserProfile = asyncHandler(async (req, res, next) => {
   const { username } = req.params;
 
-  let user;
-
-  // If the parameter is a valid Mongoose ObjectId, attempt to find by ID first
-  if (mongoose.Types.ObjectId.isValid(username)) {
-    user = await User.findById(username);
-  }
-
-  // Fallback to finding by username if not found by ID or if ID was invalid
-  if (!user) {
-    user = await User.findOne({ username: username.toLowerCase() });
-  }
+  const user = await User.findOne({ username: username.toLowerCase() });
 
   if (!user) {
     return next(new AppError('User not found', 404));
@@ -35,40 +25,73 @@ export const followUser = asyncHandler(async (req, res, next) => {
   if (!target) return next(new AppError('User not found', 404));
   if (target._id.equals(req.user._id)) return next(new AppError('You cannot follow yourself', 400));
 
+  const sagaId = req.headers['idempotency-key'] || uuidv4();
+  const actorId = req.user._id.toString();
+  const targetId = target._id.toString();
+
+  const followSteps = [
+    {
+      name: 'updateTargetFollowers',
+      execute: async (context) => {
+        const result = await User.updateOne(
+          { _id: context.targetId, followers: { $ne: context.actorId } },
+          { $addToSet: { followers: context.actorId } }
+        );
+        if (result.matchedCount === 0) {
+          throw new AppError('User not found', 404);
+        }
+        if (result.modifiedCount === 0) {
+          throw new AppError('Already following this user', 400);
+        }
+      },
+      compensate: async (context) => {
+        await User.updateOne(
+          { _id: context.targetId },
+          { $pull: { followers: context.actorId } }
+        );
+      }
+    },
+    {
+      name: 'updateActorFollowing',
+      execute: async (context) => {
+        const result = await User.updateOne(
+          { _id: context.actorId, following: { $ne: context.targetId } },
+          { $addToSet: { following: context.targetId } }
+        );
+        if (result.matchedCount === 0) {
+          throw new AppError('User not found', 404);
+        }
+      },
+      compensate: async (context) => {
+        await User.updateOne(
+          { _id: context.actorId },
+          { $pull: { following: context.targetId } }
+        );
+      }
+    }
+  ];
+
   try {
-    const targetResult = await User.updateOne(
-      { _id: target._id, followers: { $ne: req.user._id } },
-      { $addToSet: { followers: req.user._id } }
+    await SagaOrchestrator.executeSaga(
+      sagaId,
+      'FOLLOW_USER',
+      followSteps,
+      { actorId, targetId, targetUsername: target.username }
     );
 
-    if (targetResult.matchedCount === 0) {
-      return next(new AppError('User not found', 404));
-    }
-    if (targetResult.modifiedCount === 0) {
-      return next(new AppError('Already following this user', 400));
-    }
-
-    const selfResult = await User.findByIdAndUpdate(
-      req.user._id,
-      { $addToSet: { following: target._id } },
-      { session, new: true }
-    );
-
-    if (!selfResult) {
-      await session.abortTransaction();
-      return next(new AppError('User not found', 404));
-    }
-
-    await logActivitySafely({
-      actor: req.user.id,
-      type: ACTIVITY_TYPES.USER_FOLLOWED,
-      targetUser: target._id,
-      metadata: { targetUsername: target.username },
+    // Emit event for decoupled activity logging
+    eventEmitter.emit('USER_FOLLOWED', {
+      actorId,
+      targetId,
+      targetUsername: target.username,
     });
 
     sendSuccess(res, 200, null, 'Followed successfully');
   } catch (error) {
-    return next(new AppError('Follow operation failed', 500));
+    if (error instanceof AppError) {
+      return next(error);
+    }
+    return next(new AppError(error.message || 'Follow operation failed', error.statusCode || 500));
   }
 });
 
@@ -78,34 +101,79 @@ export const unfollowUser = asyncHandler(async (req, res, next) => {
   if (!target) return next(new AppError('User not found', 404));
   if (target._id.equals(req.user._id)) return next(new AppError('You cannot unfollow yourself', 400));
 
+  const sagaId = req.headers['idempotency-key'] || uuidv4();
+  const actorId = req.user._id.toString();
+  const targetId = target._id.toString();
+
+  const unfollowSteps = [
+    {
+      name: 'updateTargetFollowers',
+      execute: async (context) => {
+        const result = await User.updateOne(
+          { _id: context.targetId },
+          { $pull: { followers: context.actorId } }
+        );
+        if (result.matchedCount === 0) {
+          throw new AppError('User not found', 404);
+        }
+        context.wasFollowing = result.modifiedCount > 0;
+      },
+      compensate: async (context) => {
+        if (context.wasFollowing) {
+          await User.updateOne(
+            { _id: context.targetId, followers: { $ne: context.actorId } },
+            { $addToSet: { followers: context.actorId } }
+          );
+        }
+      }
+    },
+    {
+      name: 'updateActorFollowing',
+      execute: async (context) => {
+        const result = await User.updateOne(
+          { _id: context.actorId },
+          { $pull: { following: context.targetId } }
+        );
+        if (result.matchedCount === 0) {
+          throw new AppError('User not found', 404);
+        }
+        context.wasFollowed = result.modifiedCount > 0;
+        if (!context.wasFollowing && !context.wasFollowed) {
+          throw new AppError('You were not following this user', 400);
+        }
+      },
+      compensate: async (context) => {
+        if (context.wasFollowed) {
+          await User.updateOne(
+            { _id: context.actorId, following: { $ne: context.targetId } },
+            { $addToSet: { following: context.targetId } }
+          );
+        }
+      }
+    }
+  ];
+
   try {
-    const targetResult = await User.updateOne(
-      { _id: target._id },
-      { $pull: { followers: req.user._id } }
+    await SagaOrchestrator.executeSaga(
+      sagaId,
+      'UNFOLLOW_USER',
+      unfollowSteps,
+      { actorId, targetId, targetUsername: target.username }
     );
 
-    const selfResult = await User.updateOne(
-      { _id: req.user._id },
-      { $pull: { following: target._id } }
-    );
-
-    if (targetResult.matchedCount === 0 || selfResult.matchedCount === 0) {
-      return next(new AppError('User not found', 404));
-    }
-    if (targetResult.modifiedCount === 0 && selfResult.modifiedCount === 0) {
-      return next(new AppError('You were not following this user', 400));
-    }
-
-    await logActivitySafely({
-      actor: req.user.id,
-      type: ACTIVITY_TYPES.USER_UNFOLLOWED,
-      targetUser: target._id,
-      metadata: { targetUsername: target.username },
+    // Emit event for decoupled activity logging
+    eventEmitter.emit('USER_UNFOLLOWED', {
+      actorId,
+      targetId,
+      targetUsername: target.username,
     });
 
     sendSuccess(res, 200, null, 'Unfollowed successfully');
   } catch (error) {
-    return next(new AppError('Unfollow operation failed', 500));
+    if (error instanceof AppError) {
+      return next(error);
+    }
+    return next(new AppError(error.message || 'Unfollow operation failed', error.statusCode || 500));
   }
 });
 

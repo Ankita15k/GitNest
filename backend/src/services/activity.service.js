@@ -31,11 +31,17 @@ const buildActivityPage = async (filter, page, limit) => {
 };
 
 export const logActivity = async (activityPayload) => {
+  if (activityPayload.repository) {
+    const repo = await Repository.findById(activityPayload.repository).select('visibility');
+    if (repo && repo.visibility === 'private') {
+      activityPayload.visibility = 'private';
+    }
+  }
   return Activity.create(activityPayload);
 };
 
 export const getGlobalFeed = async ({ page, limit } = {}) => {
-  return buildActivityPage({}, page, limit);
+  return buildActivityPage({ visibility: 'public' }, page, limit);
 };
 
 export const getUserFeed = async ({ username, page, limit } = {}) => {

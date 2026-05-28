@@ -1,0 +1,57 @@
+name: Docker Build Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/Dockerfile'
+      - 'frontend/Dockerfile'
+      - 'docker-compose.yml'
+      - 'frontend/nginx.conf'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/Dockerfile'
+      - 'frontend/Dockerfile'
+      - 'docker-compose.yml'
+      - 'frontend/nginx.conf'
+
+jobs:
+  docker-build:
+    name: Docker Build Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: false
+          tags: gitnest-backend:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build frontend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: false
+          tags: gitnest-frontend:test
+          build-args: |
+            VITE_API_URL=http://localhost:5000/api/v1
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Validate docker-compose config
+        run: docker compose config --quiet
+        env:
+          JWT_SECRET: test-secret-for-validation
+          MONGO_URI: mongodb://mongodb:27017/gitnest
+          REDIS_URL: redis://redis:6379
+          FRONTEND_URL: http://localhost:5173

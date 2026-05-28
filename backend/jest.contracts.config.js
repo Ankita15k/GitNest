@@ -1,9 +1,7 @@
 export default {
   testEnvironment: 'node',
   verbose: true,
-  transform: {
-    '^.+\\.js$': 'babel-jest',
-  },
+  transform: {},
   testMatch: [
     '**/tests/contracts/**/*.test.js',
     '**/tests/integration/**/*.contract.test.js',

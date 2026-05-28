@@ -10,8 +10,6 @@ if (!process.env.JWT_SECRET) {
 const app = createApp();
 const PORT = process.env.PORT || 5000;
 
-await connectDB();
-
 const startServer = async () => {
   try {
     await connectDB();

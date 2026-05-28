@@ -5,6 +5,9 @@ import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/AppError.js';
 import { sendSuccess } from '../utils/responseHandlers.js';
 import paginate, { buildPaginationMeta } from '../utils/paginate.js';
+import { v4 as uuidv4 } from 'uuid';
+import SagaOrchestrator from '../services/saga/sagaOrchestrator.js';
+import eventEmitter from '../events/eventEmitter.js';
 
 const populatePullRequest = (query) =>
   query.populate('author', 'username avatarUrl').populate('repository', 'name owner defaultBranch').populate('comments.author', 'username avatarUrl').populate('reviews.author', 'username avatarUrl');
@@ -90,14 +93,69 @@ export const updatePullRequest = asyncHandler(async (req, res) => {
   sendSuccess(res, 200, serializePullRequest(await findPullRequest(pullRequest._id)), 'Pull request updated successfully');
 });
 
-export const mergePullRequest = asyncHandler(async (req, res) => {
+export const mergePullRequest = asyncHandler(async (req, res, next) => {
   const pullRequest = await findPullRequest(req.params.id);
   if (pullRequest.status !== 'open') throw new AppError('Pull request is not open', 400);
-  pullRequest.status = 'merged';
-  pullRequest.mergedAt = new Date();
-  pullRequest.closedAt = pullRequest.mergedAt;
-  await pullRequest.save();
-  sendSuccess(res, 200, serializePullRequest(await findPullRequest(pullRequest._id)), 'Pull request merged successfully');
+
+  const sagaId = req.headers['idempotency-key'] || uuidv4();
+  const prId = pullRequest._id.toString();
+
+  const mergeSteps = [
+    {
+      name: 'validateOpen',
+      execute: async (context) => {
+        const pr = await PullRequest.findById(context.prId);
+        if (!pr) throw new AppError('Pull request not found', 404);
+        if (pr.status !== 'open') {
+          throw new AppError('Pull request is not open', 400);
+        }
+      },
+      compensate: null
+    },
+    {
+      name: 'updatePRStatus',
+      execute: async (context) => {
+        const mergedAt = new Date();
+        const result = await PullRequest.updateOne(
+          { _id: context.prId, status: 'open' },
+          { status: 'merged', mergedAt, closedAt: mergedAt }
+        );
+        if (result.matchedCount === 0) {
+          throw new AppError('Pull request is not open', 400);
+        }
+        context.mergedAt = mergedAt;
+      },
+      compensate: async (context) => {
+        await PullRequest.updateOne(
+          { _id: context.prId },
+          { status: 'open', mergedAt: null, closedAt: null }
+        );
+      }
+    }
+  ];
+
+  try {
+    await SagaOrchestrator.executeSaga(
+      sagaId,
+      'MERGE_PULL_REQUEST',
+      mergeSteps,
+      { prId }
+    );
+
+    // Emit event for decoupled activity logging
+    eventEmitter.emit('PULL_REQUEST_MERGED', {
+      actorId: req.user._id.toString(),
+      repoId: pullRequest.repository._id.toString(),
+      prNumber: pullRequest.number,
+      prTitle: pullRequest.title,
+    });
+
+    const updated = await findPullRequest(pullRequest._id);
+    sendSuccess(res, 200, serializePullRequest(updated), 'Pull request merged successfully');
+  } catch (error) {
+    if (error instanceof AppError) return next(error);
+    return next(new AppError(error.message || 'Merge operation failed', 500));
+  }
 });
 
 export const closePullRequest = asyncHandler(async (req, res) => {

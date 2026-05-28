@@ -9,6 +9,7 @@
     "start": "node src/index.js",
     "test": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --runInBand",
     "test:contracts": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --config jest.contracts.config.js --runInBand",
+    "test:saga": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest --config jest.saga.config.js --runInBand",
     "contracts:snapshot": "node ../scripts/export-openapi.mjs src/docs/openapi.snapshot.json",
     "contracts:check": "node ../scripts/validate-openapi-compatibility.mjs src/docs/openapi.snapshot.json",
     "lint": "echo \"No linting configured\""
@@ -28,6 +29,7 @@
     "ajv-formats": "^3.0.1",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
