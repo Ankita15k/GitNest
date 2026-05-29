@@ -1,12 +1,12 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { loginUser, registerUser, getMe } from '../api/authApi';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { loginUser, registerUser, getMe } from "../api/authApi";
 
 const extractErrorMessage = (error) => {
   if (error?.errors && Array.isArray(error.errors) && error.errors.length > 0) {
-    return error.errors.map((err) => err.message).join(', ');
+    return error.errors.map((err) => err.message).join(", ");
   }
-  return error?.message || fallback;
+  return error?.message || "An error occurred";
 };
 
 export const useAuthStore = create(
@@ -146,6 +146,6 @@ export const useAuthStore = create(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
-    }
-  )
+    },
+  ),
 );
