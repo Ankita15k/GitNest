@@ -74,14 +74,14 @@ const Login = () => {
     if (Object.keys(errors).length > 0) return;
 
     try {
-      await login(formData.email.trim(), formData.password.trim());
+      const result = await login(formData.email.trim(), formData.password.trim());
 
       addToast({
         message: "Signed in successfully!",
         type: "success",
       });
 
-      navigate("/");
+      navigate(`/user/${result.username}`);
     } catch (err) {
       // Field-level API errors
       if (

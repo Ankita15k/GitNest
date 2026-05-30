@@ -82,14 +82,14 @@ const Register = () => {
     }
 
     try {
-      await register({ username, email, password });
+      const result = await register({ username, email, password });
 
       addToast({
         message: "Account created successfully!",
         type: "success",
       });
 
-      navigate("/");
+      navigate(`/user/${result.username}`);
     } catch (err) {
       if (err.response?.data?.errors) {
         const fieldErrors = {};
