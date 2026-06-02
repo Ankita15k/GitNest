@@ -415,7 +415,7 @@ const Register = () => {
                       onClick={() => setShowPassword((s) => !s)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-white"
                     >
-                      {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                   {validationErrors.password && (
@@ -479,9 +479,11 @@ const Register = () => {
                       onClick={() => setShowConfirmPassword((s) => !s)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-white"
                     >
-                      {showConfirmPassword ?
-                        <Eye size={18} /> : <EyeOff size={18} />
-                      }
+                      {showConfirmPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
                     </button>
                   </div>
                   {validationErrors.confirmPassword && (
