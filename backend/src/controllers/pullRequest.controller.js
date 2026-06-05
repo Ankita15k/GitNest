@@ -169,6 +169,13 @@ export const getPullRequest = asyncHandler(async (req, res) => {
 export const createPullRequest = asyncHandler(async (req, res) => {
   const repository = await resolveRepository(req.body.repository, req.body.repositoryId, req.body.username);
 
+  if (
+    repository.visibility === 'private' &&
+    repository.owner.toString() !== req.user._id.toString()
+  ) {
+    throw new AppError('Repository not found', 404);
+  }
+
   // Atomically increment the PR counter on the repository document.
   // findOneAndUpdate with $inc is a single atomic MongoDB operation — concurrent
   // requests can never observe the same counter value, eliminating the TOCTOU
