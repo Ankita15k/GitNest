@@ -30,6 +30,15 @@ export const createRepository = asyncHandler(async (req, res, next) => {
     return next(new AppError("Repository name is required", 400));
   }
 
+  if (!/^[a-zA-Z0-9._-]+$/.test(name)) {
+    return next(
+      new AppError(
+        "Repository name contains invalid characters",
+        400
+      )
+    );
+  }
+
   const existingRepo = await Repository.findOne({
     owner: req.user.id,
     name,
