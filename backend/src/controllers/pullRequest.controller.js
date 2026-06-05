@@ -181,14 +181,21 @@ export const createPullRequest = asyncHandler(async (req, res) => {
 
   if (!updatedRepo) throw new AppError('Repository not found', 404);
 
+  const sourceBranch = req.body.sourceBranch || req.body.fromBranch;
+  const targetBranch = req.body.targetBranch || req.body.toBranch;
+
+  if (sourceBranch?.startsWith('-') || targetBranch?.startsWith('-')) {
+    throw new AppError('Invalid branch name', 400);
+  }
+
   const pullRequest = await PullRequest.create({
     number: updatedRepo.prCount,
     title: req.body.title,
     description: req.body.description || '',
     repository: repository._id,
     author: req.user._id,
-    sourceBranch: req.body.sourceBranch || req.body.fromBranch,
-    targetBranch: req.body.targetBranch || req.body.toBranch,
+    sourceBranch,
+    targetBranch,
     diff: req.body.diff || [],
   });
 
@@ -200,6 +207,11 @@ export const updatePullRequest = asyncHandler(async (req, res) => {
   const pullRequest = req.pullRequest || await findPullRequest(req.params.id);
   if (pullRequest.status === 'merged') throw new AppError('Merged pull requests cannot be updated', 400);
   const { status: _ignoredStatus, ...safeBody } = req.body;
+
+  if (safeBody.fromBranch?.startsWith('-') || safeBody.toBranch?.startsWith('-') || safeBody.sourceBranch?.startsWith('-') || safeBody.targetBranch?.startsWith('-')) {
+    throw new AppError('Invalid branch name', 400);
+  }
+
   for (const key of ['title', 'description', 'sourceBranch', 'targetBranch', 'diff']) {
     if (safeBody[key] !== undefined) pullRequest[key] = safeBody[key];
   }
@@ -271,13 +283,13 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
         const status = await git.status();
         context._previousBranch = status.current;
         if (context._previousBranch !== context.targetBranch) {
-          await git.checkout(context.targetBranch);
+          await git.checkout(['--', context.targetBranch]);
         }
       },
       compensate: async (context) => {
         if (context._previousBranch) {
           const git = simpleGit(context.repoPath);
-          await git.checkout(context._previousBranch);
+          await git.checkout(['--', context._previousBranch]);
         }
       }
     },
@@ -285,7 +297,7 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
       name: 'gitMerge',
       execute: async (context) => {
         const git = simpleGit(context.repoPath);
-        await git.merge([context.sourceBranch]);
+        await git.merge(['--', context.sourceBranch]);
       },
       compensate: async (context) => {
         const git = simpleGit(context.repoPath);
