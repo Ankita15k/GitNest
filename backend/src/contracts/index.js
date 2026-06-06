@@ -21,6 +21,24 @@ const loginBody = {
   required: ['email', 'password'],
 };
 
+const forgotPasswordBody = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    email: { type: 'string', format: 'email' },
+  },
+  required: ['email'],
+};
+
+const resetPasswordBody = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    password: { type: 'string', minLength: 6 },
+  },
+  required: ['password'],
+};
+
 const repositoryBody = {
   type: 'object',
   additionalProperties: false,
@@ -219,6 +237,8 @@ export const contracts = {
     register: { tags: ['Auth'], summary: 'Register a user', request: { body: registerBody }, responses: { 201: sharedSchemas.successEnvelope(sharedSchemas.authUser) } },
     login: { tags: ['Auth'], summary: 'Log in a user', request: { body: loginBody }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.authUser) } },
     me: { tags: ['Auth'], summary: 'Fetch current user', security: [{ bearerAuth: [] }], responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.user) } },
+    forgotPassword: { tags: ['Auth'], summary: 'Request a password reset', request: { body: forgotPasswordBody }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
+    resetPassword: { tags: ['Auth'], summary: 'Reset password with token', request: { body: resetPasswordBody, params: { type: 'object', additionalProperties: true, properties: { token: { type: 'string', minLength: 1 } }, required: ['token'] } }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.authUser) } },
   },
   repositories: {
     listByUser: { tags: ['Repositories'], request: { params: sharedSchemas.usernameParam, query: sharedSchemas.paginationQuery }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },

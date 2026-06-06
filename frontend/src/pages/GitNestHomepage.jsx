@@ -68,10 +68,24 @@ export default function GitNestHomepage() {
         "MongoDB",
     ];
 
+    const links = [
+        { name: "Contribution Guide", path: "/docs" },
+        { name: "Roadmap", path: "/docs" },
+        { name: "API Docs", path: "/docs" },
+        { name: "Architecture", path: "/docs" },
+    ];
+
     const navLinks = [
         { name: "Home", href: "#home" },
         { name: "Features", href: "#features" },
         { name: "Contributors", href: "#contributors" },
+    ];
+
+    const platformLinks = [
+        { name: "Repositories", path: "/login" },
+        { name: "Pull Requests", path: "/login" },
+        { name: "AI Workflows", path: "/docs" },
+        { name: "Discussions", path: "/login" },
     ];
 
     const scrollReveal = {
@@ -126,7 +140,7 @@ export default function GitNestHomepage() {
                 <div className="max-w-7xl mx-auto h-16 md:h-20 rounded-[24px] md:rounded-[28px] border border-white/50 dark:border-white/10 bg-white/75 dark:bg-[#0c0f14]/70 backdrop-blur-2xl shadow-[0_8px_40px_rgba(15,23,42,0.08)] dark:shadow-[0_8px_40px_rgba(0,0,0,0.45)] flex items-center justify-between px-4 md:px-8 transition-all">
 
                     {/* LOGO */}
-                    <div className="flex items-center gap-4 cursor-pointer">
+                    <div className="flex items-center gap-4 cursor-pointer" onClick={()=>window.scrollTo(0,0)}>
 
                         <div className="relative w-10 h-10 rounded-2xl bg-white dark:bg-[#10141b] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg overflow-hidden">
 
@@ -974,7 +988,7 @@ export default function GitNestHomepage() {
                         {/* BRAND */}
                         <div>
 
-                            <div className="flex items-center gap-4 mb-7">
+                            <div className="flex items-center gap-4 mb-7" onClick={()=>window.scrollTo(0,0)}>
 
                                 {/* LOGO */}
                                 <div className="w-14 h-14 rounded-[20px] bg-white border border-[#e4ece8] shadow-[0_10px_30px_rgba(15,23,42,0.06)] flex items-center justify-center overflow-hidden p-2">
@@ -1014,23 +1028,19 @@ export default function GitNestHomepage() {
 
                             <div className="space-y-5 text-[#64748b] dark:text-zinc-400">
 
-                                {[
-                                    "Repositories",
-                                    "Pull Requests",
-                                    "AI Workflows",
-                                    "Discussions",
-                                ].map((item) => (
-                                    <a
-                                        key={item}
-                                        href="#"
+                                {platformLinks.map((item) => (
+                                    <Link
+                                        key={item.name}
+                                        onClick={()=> window.scrollTo(0,0)}
+                                        to={item.path}
                                         className="group flex items-center gap-3 text-[17px] text-[#64748b] dark:text-zinc-400 hover:text-[#00b86b] transition-all duration-300"
                                     >
 
                                         <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />
 
-                                        {item}
+                                        {item.name}
 
-                                    </a>
+                                    </Link>
                                 ))}
                             </div>
                         </div>
@@ -1044,28 +1054,25 @@ export default function GitNestHomepage() {
 
                             <div className="space-y-3">
 
-                                {[
-                                    "Contribution Guide",
-                                    "Roadmap",
-                                    "API Docs",
-                                    "Architecture",
-                                ].map((item) => (
-                                    <a
-                                        key={item}
-                                        href="#"
+                                {links.map((item) => (
+                                    <Link
+                                        key={item.name}
+                                        to={item.path}
+                                        onClick={()=>window.scrollTo(0,0)}
                                         className="group flex items-center gap-3 text-[17px] text-[#64748b] dark:text-zinc-400 hover:text-[#00b86b] transition-all duration-300"
                                     >
 
                                         <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />
 
-                                        {item}
+                                        {item.name}
 
-                                    </a>
+                                    </Link>
                                 ))}
 
                                 {/* LEGAL LINK */}
                                 <Link
                                     to="/terms"
+                                    onClick={()=> window.scrollTo(0,0)}
                                     className="group flex items-center gap-3 text-[16px] text-[#475569] hover:text-[#00b86b] transition-all duration-300"
                                 >
                                     <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />
@@ -1075,6 +1082,7 @@ export default function GitNestHomepage() {
 
                                 <Link
                                     to="/contact"
+                                    onClick={()=>window.scrollTo(0,0)}
                                     className="group flex items-center gap-3 text-[16px] text-[#475569] hover:text-[#00b86b] transition-all duration-300"
                                 >
                                     <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />

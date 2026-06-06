@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
@@ -30,6 +31,14 @@ const userSchema = new mongoose.Schema(
     },
     githubId: {
       type: String,
+      default: null,
+    },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+    passwordResetExpires: {
+      type: Date,
       default: null,
     },
 
@@ -81,6 +90,28 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+/**
+ * Generate a password reset token.
+ *
+ * Returns the raw (unhashed) token to be sent to the user via email.
+ * The hashed version is stored in the database so that a database
+ * compromise does not leak usable tokens.  The token expires after
+ * 10 minutes by default (configurable via PASSWORD_RESET_EXPIRES_MIN).
+ */
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  const expiresMin = Number(process.env.PASSWORD_RESET_EXPIRES_MIN) || 10;
+  this.passwordResetExpires = Date.now() + expiresMin * 60 * 1000;
+
+  return resetToken;
 };
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);

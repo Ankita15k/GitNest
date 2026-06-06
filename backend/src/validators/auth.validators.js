@@ -41,3 +41,19 @@ export const loginValidator = [
   body('password')
     .notEmpty().withMessage('Password is required'),
 ];
+
+export const forgotPasswordValidator = [
+  body('email')
+    .trim()
+    .notEmpty().withMessage('Email is required')
+    .bail()
+    .isEmail().withMessage('Email must be valid')
+    .normalizeEmail(),
+];
+
+export const resetPasswordValidator = [
+  body('password')
+    .notEmpty().withMessage('Password is required')
+    .bail()
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+];

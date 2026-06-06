@@ -43,3 +43,39 @@ export const buildRepositoryTree = async (
 
   return buildTree(repoPath);
 };
+
+export const getRepositoryFileContent = async (userId, repoName, filePath) => {
+  const repoPath = path.resolve(
+    process.cwd(),
+    'repositories',
+    userId,
+    repoName
+  );
+
+  if (!fs.existsSync(repoPath)) {
+    throw new Error('Repository directory not found!!');
+  }
+
+  const absolutePath = path.resolve(repoPath, filePath);
+  
+  if (!absolutePath.startsWith(repoPath)) {
+    const error = new Error('Path traversal detected');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (!fs.existsSync(absolutePath)) {
+    const error = new Error('File not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const stats = fs.statSync(absolutePath);
+  if (stats.isDirectory()) {
+    const error = new Error('Path is a directory');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return fs.readFileSync(absolutePath, 'utf8');
+};
