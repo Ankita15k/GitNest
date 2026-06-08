@@ -28,9 +28,8 @@ router.post('/:id/close', protect, requirePullRequestAccess('author'), ...schema
 // Only the repo owner may merge
 router.post('/:id/merge', protect, requirePullRequestAccess('repoOwner'), ...schemaValidator(contracts.pullRequests.merge), mergePullRequest);
 
-// Any authenticated user may comment or review on public repos;
-// private-repo PRs are restricted to PR author and repo owner
-router.post('/:id/comments', protect, requirePullRequestAccess('readMember'), ...schemaValidator(contracts.pullRequests.comment), addPullRequestComment);
-router.post('/:id/reviews', protect, requirePullRequestAccess('readMember'), ...schemaValidator(contracts.pullRequests.review), submitPullRequestReview);
+// Collaborators, PR author, and repo owner may comment or review
+router.post('/:id/comments', protect, requirePullRequestAccess('repoCollaborator'), ...schemaValidator(contracts.pullRequests.comment), addPullRequestComment);
+router.post('/:id/reviews', protect, requirePullRequestAccess('repoCollaborator'), ...schemaValidator(contracts.pullRequests.review), submitPullRequestReview);
 
 export default router;

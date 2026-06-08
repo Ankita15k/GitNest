@@ -55,6 +55,12 @@ const repositorySchema = new mongoose.Schema(
         type: [String],
         default: [],
     },
+    collaborators: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    ],
     prCount: {
         type: Number,
         default: 0,

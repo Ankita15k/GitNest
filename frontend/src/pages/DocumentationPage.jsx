@@ -308,7 +308,7 @@ const DocumentationPage = () => {
               </div>
             </div>
 
-            <section id="overview" className="w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
+            <section id="overview" className="scroll-mt-40 w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
               <p className="bg-gradient-to-r from-[#00c97b] to-cyan-400 bg-clip-text text-transparent text-xs sm:text-sm font-bold tracking-widest uppercase mb-3">1. Overview</p>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-4 text-zinc-900 dark:text-white">What GitNest is</h2>
               <p className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-4xl">
@@ -316,7 +316,7 @@ const DocumentationPage = () => {
               </p>
             </section>
 
-            <section id="start" className="w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
+            <section id="start" className="scroll-mt-40 w-full border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
               <p className="bg-gradient-to-r from-[#00c97b] to-cyan-400 bg-clip-text text-transparent text-xs sm:text-sm font-bold tracking-widest uppercase mb-3">2. Quick Start</p>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-4 text-zinc-900 dark:text-white">Run the project locally</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
@@ -338,7 +338,7 @@ const DocumentationPage = () => {
               </p>
             </section>
 
-            <section id="architecture" className="w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
+            <section id="architecture" className="scroll-mt-40 w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
               <p className="bg-gradient-to-r from-[#00c97b] to-cyan-400 bg-clip-text text-transparent text-xs sm:text-sm font-bold tracking-widest uppercase mb-3">3. Architecture</p>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-4 text-zinc-900 dark:text-white">How the codebase is organized</h2>
               <div className="w-full rounded-2xl border border-zinc-200 dark:border-white/5 bg-zinc-50 dark:bg-[#0e141b] p-5">
@@ -361,7 +361,7 @@ const DocumentationPage = () => {
               </div>
             </section>
 
-            <section id="conventions" className="w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
+            <section id="conventions" className="scroll-mt-40 w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
               <p className="bg-gradient-to-r from-[#00c97b] to-cyan-400 bg-clip-text text-transparent text-xs sm:text-sm font-bold tracking-widest uppercase mb-3">4. Conventions</p>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-4 text-zinc-900 dark:text-white">How to keep changes consistent</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
@@ -386,7 +386,7 @@ const DocumentationPage = () => {
               </div>
             </section>
 
-            <section id="contributors" className="w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
+            <section id="contributors" className="scroll-mt-40 w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
               <p className="bg-gradient-to-r from-[#00c97b] to-cyan-400 bg-clip-text text-transparent text-xs sm:text-sm font-bold tracking-widest uppercase mb-3">5. Contributing</p>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-4 text-zinc-900 dark:text-white">Contributor workflow</h2>
               <ol className="space-y-3 text-sm sm:text-base text-zinc-600 dark:text-zinc-400 list-decimal pl-5">
@@ -398,7 +398,7 @@ const DocumentationPage = () => {
               </ol>
             </section>
 
-            <section id="checklist" className="w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
+            <section id="checklist" className="scroll-mt-40 w-full rounded-3xl border border-zinc-200 dark:border-white/5 bg-white/70 dark:bg-white/3 backdrop-blur-xl p-6 sm:p-8 shadow-sm">
               <p className="bg-gradient-to-r from-[#00c97b] to-cyan-400 bg-clip-text text-transparent text-xs sm:text-sm font-bold tracking-widest uppercase mb-3">6. PR Checklist</p>
               <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-4 text-zinc-900 dark:text-white">Before you submit</h2>
               <ul className="space-y-3 text-sm sm:text-base text-zinc-600 dark:text-zinc-400 list-disc pl-5">

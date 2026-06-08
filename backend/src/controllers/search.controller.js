@@ -5,6 +5,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/AppError.js';
 import { sendPaginated } from '../utils/responseHandlers.js';
 import paginate, { buildPaginationMeta } from '../utils/paginate.js';
+import { sanitizeSearchQuery } from '../utils/sanitizeSearchQuery.js';
 
 const SEARCH_TYPES = {
   USERS: 'users',
@@ -23,7 +24,9 @@ const visibleRepoIds = async (userId) => {
 };
 
 const performSearch = async (query, type, skip, limit, userId) => {
-  const searchFilter = { $text: { $search: query } };
+  // Sanitize the query to prevent NoSQL injection via regex operators
+  const sanitizedQuery = sanitizeSearchQuery(query);
+  const searchFilter = { $text: { $search: sanitizedQuery } };
   const projections = {
     users: { username: 1, displayName: 1, avatarUrl: 1, bio: 1, _id: 1, createdAt: 1 },
     repositories: { name: 1, owner: 1, description: 1, language: 1, stars: 1, topics: 1, visibility: 1, _id: 1, createdAt: 1 },

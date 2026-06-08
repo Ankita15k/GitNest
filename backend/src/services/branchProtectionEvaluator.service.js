@@ -1,6 +1,15 @@
 import BranchProtectionRule from '../models/BranchProtectionRule.model.js';
+import Repository from '../models/Repository.model.js';
 
 const asStringId = (value) => (value == null ? '' : value.toString());
+
+const isCollaboratorOrOwner = async (userId, repository) => {
+  const repo = await Repository.findById(repository._id).select('owner collaborators');
+  if (!repo) return false;
+  const uid = asStringId(userId);
+  if (uid === asStringId(repo.owner)) return true;
+  return repo.collaborators?.some(c => asStringId(c) === uid) ?? false;
+};
 
 export const evaluateMerge = async ({ repository, pullRequest, userId }) => {
   if (asStringId(userId) === asStringId(repository.owner)) {
@@ -18,9 +27,6 @@ export const evaluateMerge = async ({ repository, pullRequest, userId }) => {
 
   const reasons = [];
 
-  // A PR merge can only reach this evaluator from the PR merge flow.
-  // The requirePullRequest flag is therefore already satisfied.
-
   if (rule.requiredApprovalsCount > 0) {
     const authorId = asStringId(pullRequest.author?._id || pullRequest.author);
     const approvedReviewerIds = new Set();
@@ -31,7 +37,10 @@ export const evaluateMerge = async ({ repository, pullRequest, userId }) => {
       const reviewerId = asStringId(review.reviewer?._id || review.reviewer || review.author?._id || review.author);
       if (!reviewerId || reviewerId === authorId) continue;
 
-      approvedReviewerIds.add(reviewerId);
+      // Only count approvals from collaborators or the repo owner
+      if (await isCollaboratorOrOwner(reviewerId, repository)) {
+        approvedReviewerIds.add(reviewerId);
+      }
     }
 
     const approvalCount = approvedReviewerIds.size;
@@ -44,7 +53,6 @@ export const evaluateMerge = async ({ repository, pullRequest, userId }) => {
   }
 
   if (rule.requireStatusChecks === true) {
-    // TODO: Replace this with real CI/status-check integration later.
     reasons.push('Status checks are required but no CI system is configured.');
   }
 
