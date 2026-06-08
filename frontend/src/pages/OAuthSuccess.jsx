@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { API_BASE_URL } from "../utils/apiConfig";
+import { exchangeOAuthCode } from "../api/authApi";
 
 function OAuthSuccess() {
   const navigate = useNavigate();
@@ -21,17 +21,7 @@ function OAuthSuccess() {
 
     const exchangeCode = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/auth/exchange`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ code }),
-        });
-
-        if (!res.ok) {
-          throw new Error(`Exchange failed: ${res.status}`);
-        }
-
-        const { token } = await res.json();
+        const { token } = await exchangeOAuthCode(code);
 
         // Let Zustand own all state + localStorage sync.
         // checkAuth fetches /me with the token and populates the user object,

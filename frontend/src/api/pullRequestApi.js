@@ -1,8 +1,7 @@
 import { createApiClient } from './createApiClient.js';
-import { API_BASE_URL } from '../utils/apiConfig.js';
 import { unwrapApiData } from '../utils/apiContracts.js';
 
-const pullRequestApi = createApiClient(`${API_BASE_URL}/pull-requests`);
+const pullRequestApi = createApiClient('/pull-requests');
 
 export const fetchPullRequests = async ({ page = 1, limit = 20, status = 'all', search = '' } = {}) => {
   const { data } = await pullRequestApi.get('/', {

@@ -8,8 +8,12 @@ import { devLog } from '../utils/devLogger.js';
  * Creates an axios client with auth headers and normalized error responses.
  */
 export const createApiClient = (path ='') => {
+  // Normalize path format to avoid trailing slashes and ensure a single leading slash if not empty
+  const cleanPath = path.replace(/\/+$/, '');
+  const normalizedPath = cleanPath && !cleanPath.startsWith('/') ? `/${cleanPath}` : cleanPath;
+
   const client = axios.create({
-    baseURL:`${API_BASE_URL}/api/v1${path}`,
+    baseURL: `${API_BASE_URL}/api/v1${normalizedPath}`,
     headers: {
       'Content-Type': 'application/json',
     },

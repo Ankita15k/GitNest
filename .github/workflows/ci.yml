@@ -82,11 +82,11 @@ jobs:
         run: npm test -- --run || echo "No tests found"
         timeout-minutes: 5  # Step-level safety net
         env:
-          VITE_API_URL: http://localhost:5000/api
+          VITE_API_URL: http://localhost:5000
           CI: true
 
       - name: Build for production
         run: npm run build
         timeout-minutes: 5  # Catches runaway build processes
         env:
-          VITE_API_URL: http://localhost:5000/api
+          VITE_API_URL: http://localhost:5000
