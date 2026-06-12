@@ -19,7 +19,7 @@ export const pullRepository = asyncHandler(async (req, res, next) => {
     name: repoName,
   });
   if (!repository) {
-    return next(new AppError('Repository not found', 404!));
+    return next(new AppError('Repository not found', 404));
   }
 
   const repoPath = path.resolve(
@@ -28,7 +28,7 @@ export const pullRepository = asyncHandler(async (req, res, next) => {
     repository.name
   );
   if (!fs.existsSync(repoPath)) {
-    return next(new AppError('Repository directory not found', 404!));
+    return next(new AppError('Repository directory not found', 404));
   }
 
   const git = simpleGit(repoPath);
