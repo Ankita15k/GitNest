@@ -186,6 +186,7 @@ export const listDependencies = asyncHandler(async (req, res) => {
     username,
     reponame,
     userId: req.user.id,
+    requireOwner: true,
   });
 
   const { page, limit, skip } = paginate(req.query.page, req.query.limit);

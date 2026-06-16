@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import GlobalSearch from '../search/GlobalSearch.jsx';
+import NotificationBell from '../ui/NotificationBell.jsx';
 import { useState } from 'react';
 import { Search, X } from 'lucide-react';
+import { useAuthStore } from '../../store/authStore';
 
-/**
- * Lightweight navigation shell that survives sectional content failures.
- */
 const MinimalPageNav = () => {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/90 backdrop-blur-xl dark:border-zinc-800 dark:bg-[#06070a]/90">
@@ -49,12 +49,24 @@ const MinimalPageNav = () => {
           <Link to="/contact" className="transition hover:text-zinc-900 dark:hover:text-white">
             Contact
           </Link>
-          <Link
-            to="/login"
-            className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-medium transition hover:border-zinc-400 dark:border-zinc-700"
-          >
-            Sign in
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <NotificationBell />
+              <Link
+                to="/dashboard"
+                className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-medium transition hover:border-zinc-400 dark:border-zinc-700"
+              >
+                Dashboard
+              </Link>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="rounded-full border border-zinc-300 px-3 py-1.5 text-xs font-medium transition hover:border-zinc-400 dark:border-zinc-700"
+            >
+              Sign in
+            </Link>
+          )}
         </nav>
       </div>
       {mobileSearchOpen && (
