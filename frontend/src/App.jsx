@@ -67,10 +67,7 @@ return ( <div className="min-h-screen">
         path="/:owner/:repo/architecture"
         element={<RepositoryArchitecturePage />}
       />
-      <Route
-        path="/:username/:reponame/settings/branch-protection"
-        element={<RepositorySettingsPage />}
-      />
+      
       <Route path="/user/:username" element={<UserProfile />} />
       <Route path="/:username" element={<UserProfile />} />
       <Route path="/showcase" element={<ComponentShowcase />} />
@@ -82,6 +79,10 @@ return ( <div className="min-h-screen">
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/:username/:reponame/settings/branch-protection"
+          element={<RepositorySettingsPage />}
+        />
       </Route>
 
       <Route path="*" element={<NotFound />} />
