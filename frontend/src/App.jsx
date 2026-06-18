@@ -62,7 +62,10 @@ return ( <div className="min-h-screen">
         path="/pull-requests/:id"
         element={<PullRequestDetailPage />}
       />
+      {/* Public route — ActivityFeedPage fetches global/public repo activity
+        via fetchGlobalActivities(), not user-specific data. No auth needed. */}
       <Route path="/activities" element={<ActivityFeedPage />} />
+      
       <Route
         path="/:owner/:repo/architecture"
         element={<RepositoryArchitecturePage />}
