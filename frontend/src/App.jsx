@@ -70,7 +70,10 @@ return ( <div className="min-h-screen">
       
       <Route path="/user/:username" element={<UserProfile />} />
       <Route path="/:username" element={<UserProfile />} />
-      <Route path="/showcase" element={<ComponentShowcase />} />
+      {import.meta.env.DEV &&(
+        <Route path="/showcase" element={<ComponentShowcase/>}/>
+      )}
+      
       <Route path="/privacy" element={<GitNestPrivacy />} />
       <Route path="/terms" element={<GitNestTerms />} />
       <Route path="/contact" element={<ContactPage />} />
