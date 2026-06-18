@@ -52,6 +52,18 @@ Create repositories, browse code, manage issues, review pull requests, and colla
 
 ---
 
+## Table of Contents
+
+- [⚡ Features](#-features)
+- [🛠 Engineering Stack](#-engineering-stack)
+- [Current Project Structure](#current-project-structure)
+- [Structure Overview](#structure-overview)
+- [🚀 Getting Started](#-getting-started)
+- [✨ Contributors](#-contributors---the-people-behind-gitnest-)
+- [🤝 Contributing](#-contributing)
+
+---
+
 ## ⚡ Features
 
 - 🔐 **Authentication** — Register, login, JWT sessions, GitHub OAuth
