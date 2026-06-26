@@ -29,15 +29,31 @@ export const evaluateMerge = async ({ repository, pullRequest, userId }) => {
 
   if (rule.requiredApprovalsCount > 0) {
     const authorId = asStringId(pullRequest.author?._id || pullRequest.author);
-    const approvedReviewerIds = new Set();
+
+    const latestReviewerStates = new Map();
 
     for (const review of pullRequest.reviews || []) {
-      if (review.status !== 'approved') continue;
+      const reviewerId = asStringId(
+        review.author?._id || review.author
+      );
 
-      const reviewerId = asStringId(review.reviewer?._id || review.reviewer || review.author?._id || review.author);
       if (!reviewerId || reviewerId === authorId) continue;
 
-      // Only count approvals from collaborators or the repo owner
+      const existing = latestReviewerStates.get(reviewerId);
+
+      if (
+        !existing ||
+        new Date(review.createdAt) > new Date(existing.createdAt)
+      ) {
+        latestReviewerStates.set(reviewerId, review);
+      }
+    }
+
+    const approvedReviewerIds = new Set();
+
+    for (const [reviewerId, review] of latestReviewerStates.entries()) {
+      if (review.status !== 'approved') continue;
+
       if (await isCollaboratorOrOwner(reviewerId, repository)) {
         approvedReviewerIds.add(reviewerId);
       }

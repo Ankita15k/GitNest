@@ -179,12 +179,12 @@ const Register = () => {
         >
           <ArrowLeft className="w-4 h-4" />
         </Link>
-      </div>   
+      </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-16 md:py-10">
         <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-10 items-center animate-fadeIn">
           {/* LEFT */}
-          <div>
+          <div className="lg:pr-8">
             {/* BADGE */}
             <div className="inline-flex items-center gap-3 px-5 py-0 rounded-full border border-[#00dc82]/10 bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl text-[#1edb8c] shadow-lg mb-10">
               <Sparkles className="w-4 h-4" />
@@ -193,8 +193,8 @@ const Register = () => {
             </div>
 
             {/* TITLE */}
-            <h1 className="text-[50px]  leading-[1]  font-black">
-              <span className="block">Start Collaboratig</span>
+            <h1 className="text-[42px] md:text-[48px] lg:text-[52px] leading-[1.05] font-black tracking-tighter">
+              <span className="block">Start Collaborating</span>
 
               <span className="block">with</span>
 
@@ -212,9 +212,9 @@ const Register = () => {
             </p>
 
             {/* TRACKS */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="grid grid-cols-2 gap-x-8 gap-y-6 mt-8">
               <div className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg flex-shrink-0">
                   <Wand2 className="w-5 h-5 text-[#00dc82]" />
                 </div>
 
@@ -223,8 +223,8 @@ const Register = () => {
                   Workflows
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg flex-shrink-0">
                   <Code2 className="w-5 h-5 text-[#00dc82]" />
                 </div>
 
@@ -233,8 +233,8 @@ const Register = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg flex-shrink-0">
                   <Users className="w-5 h-5 text-[#00dc82]" />
                 </div>
 
@@ -245,8 +245,8 @@ const Register = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+              <div className="flex items-center gap-4">
+                <div className="w-9 h-9 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg flex-shrink-0">
                   <Shield className="w-5 h-5 text-[#00dc82]" />
                 </div>
 
@@ -256,7 +256,7 @@ const Register = () => {
               </div>
             </div>
 
-            <div className="mt-10 flex items-center gap-4 rounded-[28px] border border-white/50 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-2xl px-5 py-4 shadow-xl max-w-md">
+            <div className="mt-10 flex items-center gap-4 rounded-[28px] border border-white/50 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-2xl px-5 py-4 shadow-xl max-w-xs">
               <div className="flex -space-x-3">
                 {[1, 2, 3, 4].map((i) => (
                   <div
@@ -267,11 +267,11 @@ const Register = () => {
               </div>
 
               <div>
-                <p className="font-semibold text-zinc-800 dark:text-white">
+                <p className="font-semibold text-zinc-800 dark:text-white text-sm">
                   Trusted by developers worldwide
                 </p>
 
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   Open source • Community driven • Secure
                 </p>
               </div>
@@ -279,7 +279,7 @@ const Register = () => {
           </div>
 
           {/* Card */}
-          <div className="relative rounded-[2rem] border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-[#0d1016]/80 backdrop-blur-xl p-8 md:p-10 shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
+          <div className="relative rounded-[2rem] border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-[#0d1016]/80 backdrop-blur-xl p-8 md:p-9 shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-white/70 via-white/18 to-transparent dark:from-white/8 dark:via-white/0 pointer-events-none" />
             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/70 to-transparent pointer-events-none" />
             <div className="relative z-10 space-y-6">
@@ -504,12 +504,13 @@ const Register = () => {
                 >
                   {loading ? "Creating Account..." : "Register"}
                 </button>
-                  <button
+
+                <button
                   onClick={() => {
-                    window.location.href =
-                      `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/v1/auth/github`;
+                    window.location.href = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/v1/auth/github`;
                   }}
-                  className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="button"
+                  className="w-full py-3 rounded-2xl font-semibold border border-zinc-300 dark:border-white/20 bg-white hover:bg-zinc-50 dark:bg-zinc-900 dark:hover:bg-zinc-800 dark:text-white text-zinc-800 transition-all duration-300 shadow-sm"
                 >
                   Continue with GitHub
                 </button>

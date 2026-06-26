@@ -45,9 +45,14 @@ const SECRET_PATTERNS = [
     severity: 'HIGH',
   },
   {
-    name: 'Generic Secret Assignment',
-    regex: /(?:secret|token|auth)\s*[=:]\s*['"]([^'"]{8,})['"]/i,
-    severity: 'MEDIUM',
+  name: 'Generic Secret Assignment',
+  regex: /(?:^|[^a-zA-Z])(?:secret_key|token_secret|auth_secret|api_secret|secret_token)\s*[=:]\s*['"]([^'"]{16,})['"]/i,
+  severity: 'MEDIUM',
+  },
+  {
+  name: 'High Entropy Secret',
+  regex: /(?:secret|password|token|key|auth)\s*[=:]\s*['"]([a-zA-Z0-9+/=]{32,})['"](?!\s*\+)/i,
+  severity: 'MEDIUM',
   },
 ];
 

@@ -15,6 +15,8 @@ import paginate, { buildPaginationMeta } from "../utils/paginate.js";
 import { generateReadme } from "../utils/templates/readmeTemplates.js";
 import { generateGitignore } from "../utils/templates/gitignoreTemplates.js";
 import eventEmitter from '../events/eventEmitter.js';
+import Notification from "../models/Notification.model.js";
+import BranchProtectionRule from "../models/BranchProtectionRule.model.js";
 
 // DRY helper — resolves a :username param to the owner document's _id.
 // Returns null when the username does not exist so callers can 404 cleanly.
@@ -324,7 +326,8 @@ export const deleteRepository = asyncHandler(async (req, res, next) => {
 
     // 5. Delete PullRequest documents referencing this repository
     await PullRequest.deleteMany({ repository: repoId }, { session });
-
+    await Notification.deleteMany({ repository: repoId },{ session },);
+    await BranchProtectionRule.deleteMany({ repositoryId: repoId },{ session },);
     await session.commitTransaction();
   } catch (dbErr) {
     await session.abortTransaction();
