@@ -1,9 +1,11 @@
 import fs from 'fs';
+import { readdir, stat, readFile, realpath } from 'fs/promises';
 import path from 'path';
 
 const IGNORED_DIRS = new Set(['.git', 'node_modules', 'dist', 'build']);
 const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB limit for safety
 const MAX_DEPTH = 20; // Maximum recursion depth
+const CONCURRENCY_LIMIT = 5; // Max concurrent directory reads
 
 // Simple utility to check if file is likely binary
 const isBinary = (filePath) => {
@@ -15,71 +17,86 @@ const isBinary = (filePath) => {
   return binaryExtensions.has(path.extname(filePath).toLowerCase());
 };
 
-export const crawlRepositoryFiles = (repoPath) => {
-  const files = [];
-  const visited = new Set(); // Track visited real paths for cycle detection
+// Process items in batches with concurrency control
+const processBatch = async (items, processor) => {
+  const results = [];
+  for (let i = 0; i < items.length; i += CONCURRENCY_LIMIT) {
+    const batch = items.slice(i, i + CONCURRENCY_LIMIT);
+    const batchResults = await Promise.all(batch.map(processor));
+    results.push(...batchResults.filter(Boolean));
+  }
+  return results;
+};
 
-  const walk = (dir, depth = 0) => {
-    // Enforce max recursion depth
+export const crawlRepositoryFiles = async (repoPath) => {
+  const files = [];
+  const visited = new Set();
+
+  const walk = async (dir, depth = 0) => {
     if (depth > MAX_DEPTH) return;
 
-    if (!fs.existsSync(dir)) return;
+    // Check if directory exists
+    try {
+      await stat(dir);
+    } catch {
+      return;
+    }
 
     // Resolve real path to detect symlink cycles
     let realDir;
     try {
-      realDir = fs.realpathSync(dir);
+      realDir = await realpath(dir);
     } catch {
-      return; // Skip if path cannot be resolved
+      return;
     }
 
-    // Skip if already visited — prevents infinite symlink cycles
+    // Skip already visited — prevents symlink cycles
     if (visited.has(realDir)) return;
     visited.add(realDir);
 
     let items;
     try {
-      items = fs.readdirSync(dir);
+      items = await readdir(dir, { withFileTypes: true });
     } catch {
-      return; // Skip unreadable directories
+      return;
     }
 
-    for (const item of items) {
-      if (IGNORED_DIRS.has(item)) continue;
+    // Filter out ignored dirs and symlinks upfront
+    const validItems = items.filter(
+      (item) => !IGNORED_DIRS.has(item.name) && !item.isSymbolicLink()
+    );
 
-      const fullPath = path.join(dir, item);
+    // Process in batches with concurrency control
+    await processBatch(validItems, async (item) => {
+      const fullPath = path.join(dir, item.name);
 
-      // Use lstatSync instead of statSync — does NOT follow symlinks
-      let stats;
-      try {
-        stats = fs.lstatSync(fullPath);
-      } catch {
-        continue; // Skip if stat fails
+      if (item.isDirectory()) {
+        await walk(fullPath, depth + 1);
+        return;
       }
 
-      // Skip symbolic links entirely to prevent cycle traversal
-      if (stats.isSymbolicLink()) continue;
+      if (item.isFile()) {
+        let fileStats;
+        try {
+          fileStats = await stat(fullPath);
+        } catch {
+          return;
+        }
 
-      if (stats.isDirectory()) {
-        walk(fullPath, depth + 1);
-      } else if (stats.isFile()) {
-        if (stats.size > MAX_FILE_SIZE) continue;
-        if (isBinary(fullPath)) continue;
+        if (fileStats.size > MAX_FILE_SIZE) return;
+        if (isBinary(fullPath)) return;
 
         try {
-          const content = fs.readFileSync(fullPath, 'utf8');
+          const content = await readFile(fullPath, 'utf8');
           const relativePath = path.relative(repoPath, fullPath).replace(/\\/g, '/');
-          files.push({
-            path: relativePath,
-            content,
-          });
+          files.push({ path: relativePath, content });
         } catch {
           // Ignore read errors
         }
       }
-    }
+    });
   };
 
-  walk(repoPath);
+  await walk(repoPath);
   return files;
 };

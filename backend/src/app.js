@@ -42,6 +42,7 @@ import session from "express-session";
 
 import "./config/passport.js";
 import githubAuthRoutes from "./routes/auth.github.routes.js";
+import googleAuthRoutes from "./routes/auth.google.routes.js";
 
 registerAuditSubscribers();
 
@@ -141,6 +142,7 @@ const createApp = () => {
   app.use('/api/v1/repositories', repositoryComplianceRoutes);
   app.use('/api/v1/search', searchRoutes);
   app.use('/api/v1/auth', githubAuthRoutes);
+  app.use('/api/v1/auth', googleAuthRoutes);
   app.use('/api/v1/repositories', cloneRoutes);
   app.use('/api/v1/notifications', notificationRoutes);
   app.use((req, res, next) => {

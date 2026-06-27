@@ -13,7 +13,13 @@ import ACTIVITY_TYPES from '../constants/activityTypes.js';
 
 export const getUserProfile = asyncHandler(async (req, res, next) => {
   const { username } = req.params;
-  const cacheKey = `user:profile:${username}`;
+
+  const cacheIdentifier =
+    mongoose.Types.ObjectId.isValid(username)
+      ? username
+      : username.toLowerCase();
+
+  const cacheKey = `user:profile:${cacheIdentifier}`;
   const redis = getRedisClient();
 
   if(redis) {

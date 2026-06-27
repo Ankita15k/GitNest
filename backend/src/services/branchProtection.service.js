@@ -1,5 +1,11 @@
 import BranchProtectionRule from '../models/BranchProtectionRule.model.js';
 
+const assertStatusChecksSupported = (data = {}) => {
+  if (data.requireStatusChecks === true) {
+    throw new Error('Status checks are not yet supported.');
+  }
+};
+
 const buildUpdatePayload = (data = {}) => {
   const payload = {};
 
@@ -22,6 +28,8 @@ export const listRules = async (repositoryId) => {
 };
 
 export const createRule = async (repositoryId, data) => {
+  assertStatusChecksSupported(data);
+
   const branchPattern = data.branchPattern?.trim();
 
   const existingRule = await BranchProtectionRule.findOne({
@@ -43,6 +51,8 @@ export const createRule = async (repositoryId, data) => {
 };
 
 export const updateRule = async (ruleId, repositoryId, data) => {
+  assertStatusChecksSupported(data);
+
   const rule = await BranchProtectionRule.findOne({
     _id: ruleId,
     repositoryId,

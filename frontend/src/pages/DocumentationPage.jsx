@@ -17,6 +17,7 @@ const sections = [
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Features", href: "/#features" },
+  { name: "FAQ", href: "/#faq" },
   { name: "Contributors", href: "/#contributors" },
 ];
 

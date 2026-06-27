@@ -22,7 +22,7 @@ const scanSteps = [
       }
 
       // 1. Crawl all text files in the repository
-      const files = crawlRepositoryFiles(repoPath);
+      const files = await crawlRepositoryFiles(repoPath);
 
       // 2. Scan files for secrets
       const secretFindings = scanFiles(files);

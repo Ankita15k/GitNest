@@ -155,7 +155,7 @@ export const rebuildDependencies = asyncHandler(async (req, res) => {
     throw new AppError('Repository directory not found', 404);
   }
 
-  const files = crawlRepositoryFiles(repoPath);
+  const files = await crawlRepositoryFiles(repoPath);
   const symbols = extractSymbolsFromFiles(files);
   const { edgeCount } = await DependencyGraphBuilder.rebuild({
     repositoryId: repository._id,
