@@ -1,7 +1,6 @@
 import { createApiClient } from './createApiClient.js';
-import { API_BASE_URL } from '../utils/apiConfig.js';
 
-const searchApi = createApiClient(`${API_BASE_URL}/search`);
+const searchApi = createApiClient('/search');
 
 export const performGlobalSearch = async ({ query, type = 'all', page = 1, limit = 20 } = {}) => {
   if (!query || query.trim().length < 2) {

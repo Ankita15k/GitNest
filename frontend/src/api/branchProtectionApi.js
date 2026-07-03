@@ -1,7 +1,6 @@
 import { createApiClient } from './createApiClient.js';
-import { API_BASE_URL } from '../utils/apiConfig.js';
 
-const branchProtectionApi = createApiClient(`${API_BASE_URL}/repos`);
+const branchProtectionApi = createApiClient('/repos');
 
 export const listRules = async ({ username, reponame }) => {
   const response = await branchProtectionApi.get(`/${username}/${reponame}/settings/branch-protection`);

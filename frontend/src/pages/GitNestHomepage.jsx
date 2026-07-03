@@ -81,6 +81,7 @@ export default function GitNestHomepage() {
   const navLinks = [
     { name: "Home", href: "#home" },
     { name: "Features", href: "#features" },
+    { name: "Documentation", href: "/docs" },
     { name: "FAQ", href: "#faq" },
     { name: "Contributors", href: "#contributors" },
   ];
@@ -211,8 +212,14 @@ export default function GitNestHomepage() {
             {navLinks.map((item) => (
               <a
                 key={item.name}
-                href={item.href}
-                onClick={() => setActiveLink(item.href)}
+                href={item.href.startsWith("#") ? item.href : undefined}
+                onClick={() => {
+                  setActiveLink(item.href);
+                  if (!item.href.startsWith("#")) {
+                    // For full page links like /docs
+                    window.location.href = item.href;
+                  }
+                }}
                 className={`relative text-[15px] font-medium transition-all duration-300 ${
                   activeLink === item.href
                     ? "text-zinc-950 dark:text-white"
@@ -303,8 +310,13 @@ export default function GitNestHomepage() {
                 {navLinks.map((item) => (
                   <a
                     key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
+                    href={item.href.startsWith("#") ? item.href : undefined}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      if (!item.href.startsWith("#")) {
+                        window.location.href = item.href;
+                      }
+                    }}
                     className="text-lg font-medium text-zinc-800 dark:text-white"
                   >
                     {item.name}
@@ -377,47 +389,65 @@ export default function GitNestHomepage() {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                to="/docs#architecture"
+                to="/docs"
                 className="px-8 py-3 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl text-zinc-700 dark:text-zinc-200 hover:shadow-xl transition-all flex items-center gap-3"
               >
-                <Layers3 className="w-5 h-5" /> View Architecture
+                <Layers3 className="w-5 h-5" /> Read Documentation
               </Link>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
-                  <Code2 className="w-5 h-5 text-[#00dc82]" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <div className="flex items-center gap-5 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl px-5 py-5 transition-all duration-300 hover:border-[#00dc82]/30 hover:-translate-y-1 hover:shadow-lg">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#10141b]">
+                  <Code2 className="h-6 w-6 text-[#00dc82]" />
                 </div>
-                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-                  MERN
-                </span>
+                <div>
+                  <p className="text-base xl:text-lg font-semibold text-zinc-800 dark:text-white">
+                    MERN
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
-                  <Users className="w-5 h-5 text-[#00dc82]" />
+
+              <div className="flex items-center gap-5 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl px-5 py-5 transition-all duration-300 hover:border-[#00dc82]/30 hover:-translate-y-1 hover:shadow-lg">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#10141b]">
+                  <Users className="h-6 w-6 text-[#00dc82]" />
                 </div>
-                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-                  GSSOC <br />
-                  Community
-                </span>
+                <div className="leading-tight">
+                  <p className="text-base xl:text-lg font-semibold text-zinc-800 dark:text-white">
+                    GSSOC
+                  </p>
+                  <p className="text-base xl:text-lg font-semibold text-zinc-800 dark:text-white">
+                    Community
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
-                  <Wand2 className="w-5 h-5 text-[#00dc82]" />
+
+              <div className="flex items-center gap-5 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl px-5 py-5 transition-all duration-300 hover:border-[#00dc82]/30 hover:-translate-y-1 hover:shadow-lg">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#10141b]">
+                  <Wand2 className="h-6 w-6 text-[#00dc82]" />
                 </div>
-                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-                  AI <br />
-                  Workflows
-                </span>
+                <div className="leading-tight">
+                  <p className="text-base xl:text-lg font-semibold text-zinc-800 dark:text-white">
+                    AI
+                  </p>
+                  <p className="text-base xl:text-lg font-semibold text-zinc-800 dark:text-white">
+                    Workflows
+                  </p>
+                </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
-                  <Shield className="w-5 h-5 text-[#00dc82]" />
+
+              <div className="flex items-center gap-5 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl px-5 py-5 transition-all duration-300 hover:border-[#00dc82]/30 hover:-translate-y-1 hover:shadow-lg">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-[#10141b]">
+                  <Shield className="h-6 w-6 text-[#00dc82]" />
                 </div>
-                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-                  Secure & Reliable
-                </span>
+                <div className="leading-tight">
+                  <p className="text-base xl:text-lg font-semibold text-zinc-800 dark:text-white">
+                    Secure &amp;
+                  </p>
+                  <p className="text-base xl:text-lg font-semibold text-zinc-800 dark:text-white">
+                    Reliable
+                  </p>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -1002,7 +1032,7 @@ export default function GitNestHomepage() {
                   className="group flex items-center gap-3 text-[16px] text-[#475569] hover:text-[#00b86b] transition-all duration-300"
                 >
                   <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />
-                  Terms & Conditions
+                  Terms &amp; Conditions
                 </Link>
                 <Link
                   to="/contact"
