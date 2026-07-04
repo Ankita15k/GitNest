@@ -30,5 +30,11 @@ export const useNotificationSocket = () => {
       disconnectSocket();
       setConnected(false);
     };
-  }, [isAuthenticated, token]);
+  }, [
+    isAuthenticated,
+    token,
+    addNotification,
+    refreshUnreadCount,
+    setConnected,
+  ]);
 };
