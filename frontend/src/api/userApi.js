@@ -1,7 +1,6 @@
 import { createApiClient } from './createApiClient.js';
-import { API_BASE_URL } from '../utils/apiConfig.js';
 
-const userApi = createApiClient(`${API_BASE_URL}/users`);
+const userApi = createApiClient('/users');
 
 export const fetchUserProfile = async (username) => {
   const { data } = await userApi.get(`/${username}`);

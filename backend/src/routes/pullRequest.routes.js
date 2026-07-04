@@ -19,8 +19,8 @@ const router = express.Router();
 // optionalProtect lets the handler know who is calling so visibility filtering
 // can include the authenticated user's private-repo PRs when a token is present
 router.get('/', optionalProtect, ...schemaValidator(contracts.pullRequests.list), listPullRequests);
-router.get('/:id', optionalProtect, ...schemaValidator(contracts.pullRequests.detail), getPullRequest);
 router.get('/compare', optionalProtect, comparePullRequestBranches);
+router.get('/:id', optionalProtect, ...schemaValidator(contracts.pullRequests.detail), getPullRequest);
 router.post('/', protect, ...schemaValidator(contracts.pullRequests.create), createPullRequest);
 
 // PR author or repo owner may update or close
