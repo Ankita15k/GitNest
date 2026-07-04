@@ -109,4 +109,43 @@ export const registerAuditSubscribers = () => {
       await appendToDeadLetterQueue('USER_LOGGED_IN', { actorId, email });
     }
   });
+  eventEmitter.on('PASSWORD_RESET_REQUESTED', async ({ userId, email, ipAddress }) => {
+    try {
+      await logAuditEvent({
+        actorId: userId,
+        actionType: 'auth.password_reset_requested',
+        metadata: { email, ipAddress },
+      });
+    } catch (error) {
+      devLog('[audit-subscriber] PASSWORD_RESET_REQUESTED failed', {
+        error: error.message,
+        userId,
+      });
+      await appendToDeadLetterQueue('PASSWORD_RESET_REQUESTED', {
+        userId,
+        email,
+        ipAddress,
+      });
+    }
+  });
+
+  eventEmitter.on('PASSWORD_RESET_COMPLETED', async ({ userId, email, ipAddress }) => {
+    try {
+      await logAuditEvent({
+        actorId: userId,
+        actionType: 'auth.password_reset_completed',
+        metadata: { email, ipAddress },
+      });
+    } catch (error) {
+      devLog('[audit-subscriber] PASSWORD_RESET_COMPLETED failed', {
+        error: error.message,
+        userId,
+      });
+      await appendToDeadLetterQueue('PASSWORD_RESET_COMPLETED', {
+        userId,
+        email,
+        ipAddress,
+      });
+    }
+  });
 };

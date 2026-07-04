@@ -1,0 +1,179 @@
+.ci-status-badge {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ci-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ci-status-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.ci-status-failure {
+  background-color: #fee2e2;
+  color: #7f1d1d;
+  border: 1px solid #fca5a5;
+}
+
+.ci-status-pending {
+  background-color: #fef3c7;
+  color: #78350f;
+  border: 1px solid #fcd34d;
+}
+
+.ci-status-neutral {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+}
+
+.ci-icon {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.ci-label {
+  letter-spacing: 0.3px;
+}
+
+.ci-details {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  padding: 0.5rem;
+  min-width: 250px;
+}
+
+.ci-status-badge:hover .ci-details {
+  display: block;
+}
+
+.ci-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
+}
+
+.ci-check:hover {
+  background-color: #f9fafb;
+}
+
+.ci-check-icon {
+  font-weight: 700;
+  font-size: 0.9rem;
+  width: 20px;
+  text-align: center;
+}
+
+.ci-check-icon.success {
+  color: #10b981;
+}
+
+.ci-check-icon.failure {
+  color: #ef4444;
+}
+
+.ci-check-icon.pending {
+  color: #f59e0b;
+}
+
+.ci-check-name {
+  flex: 1;
+  color: var(--text-primary, #000);
+  font-weight: 500;
+}
+
+.ci-check-link {
+  padding: 0.2rem 0.5rem;
+  background-color: #f3f4f6;
+  color: #3b82f6;
+  border-radius: 2px;
+  text-decoration: none;
+  font-size: 0.75rem;
+  transition: background-color 0.2s ease;
+}
+
+.ci-check-link:hover {
+  background-color: #e5e7eb;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .ci-details {
+    position: static;
+    display: none;
+    border: none;
+    shadow: none;
+    padding: 0;
+  }
+
+  .ci-status-badge:active .ci-details {
+    display: block;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .ci-status-success {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #86efac;
+    border-color: rgba(16, 185, 129, 0.4);
+  }
+
+  .ci-status-failure {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  .ci-status-pending {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #fcd34d;
+    border-color: rgba(245, 158, 11, 0.4);
+  }
+
+  .ci-status-neutral {
+    background-color: rgba(107, 114, 128, 0.15);
+    color: #d1d5db;
+    border-color: rgba(107, 114, 128, 0.4);
+  }
+
+  .ci-details {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .ci-check:hover {
+    background-color: #374151;
+  }
+
+  .ci-check-link {
+    background-color: #374151;
+    color: #60a5fa;
+  }
+
+  .ci-check-link:hover {
+    background-color: #4b5563;
+  }
+}
