@@ -8,6 +8,7 @@ import User from '../models/User.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/AppError.js';
 import { sendSuccess } from '../utils/responseHandlers.js';
+import { evaluateDirectAction } from '../services/branchProtectionEvaluator.service.js';
 
 const resolveOwner = async (username) => {
   const owner = await User.findOne({ username: username.toLowerCase() });
@@ -117,6 +118,20 @@ export const commitChanges = asyncHandler(async (req, res, next) => {
   }
 
   const git = simpleGit(repoPath);
+  const status = await git.status();
+  const currentBranch = status.current;
+
+  const evaluation = await evaluateDirectAction({
+    repository,
+    branchName: currentBranch,
+    userId: req.user._id,
+    action: 'commit'
+  });
+
+  if (!evaluation.allowed) {
+    return next(new AppError(evaluation.reasons.join(' '), 403));
+  }
+
   const commit = await git.commit(message);
 
   sendSuccess(res, 200, commit, 'Commit created successfully');
@@ -149,8 +164,21 @@ export const pushRepository = asyncHandler(async (req, res, next) => {
     return next(new AppError('Repository directory not found', 404));
   }
 
+  const targetBranch = branch || repository.defaultBranch;
+
+  const evaluation = await evaluateDirectAction({
+    repository,
+    branchName: targetBranch,
+    userId: req.user._id,
+    action: 'push'
+  });
+
+  if (!evaluation.allowed) {
+    return next(new AppError(evaluation.reasons.join(' '), 403));
+  }
+
   const git = simpleGit(repoPath);
-  const result = await git.push('origin', branch || repository.defaultBranch);
+  const result = await git.push('origin', targetBranch);
 
   sendSuccess(res, 200, result, 'Repository pushed successfully');
 });

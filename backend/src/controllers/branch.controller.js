@@ -10,6 +10,7 @@ import {
   deleteBranch,
   renameBranch,
 } from '../services/branch.service.js';
+import { evaluateDirectAction } from '../services/branchProtectionEvaluator.service.js';
 
 // Helper — finds repo by username and repoName
 const getRepositoryByUsername = async (username, repoName) => {
@@ -213,6 +214,17 @@ export const deleteRepositoryBranch = asyncHandler(
           403
         )
       );
+    }
+
+    const evaluation = await evaluateDirectAction({
+      repository,
+      branchName,
+      userId: req.user._id,
+      action: 'delete'
+    });
+
+    if (!evaluation.allowed) {
+      return next(new AppError(evaluation.reasons.join(' '), 403));
     }
 
     try {

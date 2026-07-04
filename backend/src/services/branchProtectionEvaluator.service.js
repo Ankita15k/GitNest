@@ -78,3 +78,34 @@ export const evaluateMerge = async ({ repository, pullRequest, userId }) => {
 
   return { allowed: false, isOwnerOverride: false, reasons };
 };
+
+export const evaluateDirectAction = async ({ repository, branchName, userId, action }) => {
+  if (asStringId(userId) === asStringId(repository.owner)) {
+    return { allowed: true, isOwnerOverride: true, reasons: [] };
+  }
+
+  const rule = await BranchProtectionRule.findOne({
+    repositoryId: repository._id,
+    branchPattern: branchName,
+  });
+
+  if (!rule) {
+    return { allowed: true, isOwnerOverride: false, reasons: [] };
+  }
+
+  const reasons = [];
+
+  if (action === 'delete') {
+    reasons.push('Cannot delete a protected branch.');
+  }
+
+  if ((action === 'push' || action === 'commit') && rule.requirePullRequest) {
+    reasons.push('Cannot push directly to a protected branch. Please use a Pull Request.');
+  }
+
+  if (reasons.length === 0) {
+    return { allowed: true, isOwnerOverride: false, reasons: [] };
+  }
+
+  return { allowed: false, isOwnerOverride: false, reasons };
+};
