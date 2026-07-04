@@ -12,6 +12,7 @@ import {
 import BranchProtectionRuleFields from '../components/repositories/BranchProtectionRuleFields.jsx';
 import BranchProtectionRuleCard from '../components/repositories/BranchProtectionRuleCard.jsx';
 import AuditLogTab from '../components/repository/AuditLogTab.jsx';
+import RepositoryTransferTab from '../components/repository/RepositoryTransferTab.jsx';
 import ErrorState from '../components/ui/ErrorState.jsx';
 import PageShell from '../components/layout/PageShell.jsx';
 
@@ -128,6 +129,17 @@ export default function RepositorySettingsPage() {
               >
                 Audit Log
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('transfer')}
+                className={`border-b-2 px-1 py-3 text-sm font-medium transition-colors ${
+                  activeTab === 'transfer'
+                    ? 'border-red-400 text-zinc-900 dark:text-white'
+                    : 'border-transparent text-zinc-500 hover:text-red-400 dark:text-zinc-400 dark:hover:text-red-400'
+                }`}
+              >
+                Danger Zone
+              </button>
             </div>
           </div>
 
@@ -205,6 +217,10 @@ export default function RepositorySettingsPage() {
 
               {activeTab === 'audit-log' ? (
                 <AuditLogTab key={`${username}/${reponame}`} username={username} reponame={reponame} />
+              ) : null}
+
+              {activeTab === 'transfer' ? (
+                <RepositoryTransferTab key={`transfer-${username}/${reponame}`} username={username} reponame={reponame} />
               ) : null}
             </>
           )}

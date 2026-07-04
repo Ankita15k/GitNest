@@ -24,6 +24,7 @@ import OAuthSuccess from './pages/OAuthSuccess.jsx';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
 import FavoritesPage from './pages/FavoritesPage.jsx';
+import PendingTransfersPage from './pages/PendingTransfersPage.jsx';
 
 
 function App() {
@@ -84,6 +85,7 @@ return ( <div className="min-h-screen">
 
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/transfers" element={<PendingTransfersPage />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />

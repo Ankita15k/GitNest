@@ -29,6 +29,7 @@ import cloneRoutes from './routes/clone.routes.js';
 import archiveRoutes from './routes/archive.routes.js';
 import fileCrudRoutes from './routes/fileCrud.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
+import repositoryTransferRoutes from './routes/repositoryTransfer.routes.js';
 import errorHandler from './middleware/errorHandler.js';
 import AppError from './utils/AppError.js';
 import swaggerSpec from './config/swagger.js';
@@ -147,6 +148,7 @@ const createApp = () => {
   app.use('/api/v1/auth', googleAuthRoutes);
   app.use('/api/v1/repositories', cloneRoutes);
   app.use('/api/v1/notifications', notificationRoutes);
+  app.use('/api/v1/repos', repositoryTransferRoutes);
   app.use((req, res, next) => {
     next(
       new AppError(
