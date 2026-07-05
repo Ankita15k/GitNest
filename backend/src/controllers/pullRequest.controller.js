@@ -235,6 +235,14 @@ export const comparePullRequestBranches = asyncHandler(
 export const createPullRequest = asyncHandler(async (req, res) => {
   const repository = await resolveRepository(req.body.repository, req.body.repositoryId, req.body.username);
 
+  const isOwner = repository.owner.toString() === req.user._id.toString();
+  const isCollaborator = repository.collaborators?.some(
+    (c) => c.toString() === req.user._id.toString()
+  );
+  if (!isOwner && !isCollaborator) {
+    throw new AppError('You do not have access to this repository', 403);
+  }
+
   // Atomically increment the PR counter on the repository document.
   // findOneAndUpdate with $inc is a single atomic MongoDB operation — concurrent
   // requests can never observe the same counter value, eliminating the TOCTOU
