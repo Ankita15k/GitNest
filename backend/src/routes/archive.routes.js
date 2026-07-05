@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 
 router.get(
-  '/:repoName/archive',
+  '/:username/:repoName/archive',
   protect,
   downloadRepositoryArchive
 );
