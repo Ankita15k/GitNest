@@ -27,6 +27,7 @@ import searchRoutes from './routes/search.routes.js';
 import codeIntelligenceRoutes from './routes/codeIntelligence.routes.js';
 import cloneRoutes from './routes/clone.routes.js';
 import archiveRoutes from './routes/archive.routes.js';
+import fileCrudRoutes from './routes/fileCrud.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import errorHandler from './middleware/errorHandler.js';
 import AppError from './utils/AppError.js';
@@ -42,6 +43,7 @@ import session from "express-session";
 
 import "./config/passport.js";
 import githubAuthRoutes from "./routes/auth.github.routes.js";
+import googleAuthRoutes from "./routes/auth.google.routes.js";
 
 registerAuditSubscribers();
 
@@ -138,9 +140,11 @@ const createApp = () => {
   app.use('/api/v1/repositories', architectureRoutes);
   app.use('/api/v1/repositories', repositoryHealthRoutes);
   app.use('/api/v1/repositories', archiveRoutes);
+  app.use('/api/v1/repositories', fileCrudRoutes);
   app.use('/api/v1/repositories', repositoryComplianceRoutes);
   app.use('/api/v1/search', searchRoutes);
   app.use('/api/v1/auth', githubAuthRoutes);
+  app.use('/api/v1/auth', googleAuthRoutes);
   app.use('/api/v1/repositories', cloneRoutes);
   app.use('/api/v1/notifications', notificationRoutes);
   app.use((req, res, next) => {

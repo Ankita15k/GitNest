@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useAuditLogs } from '../../hooks/useAuditLogs.js';
 
 const ACTION_TYPES = [
@@ -61,15 +61,6 @@ const initialState = {
 export default function AuditLogTab({ username, reponame }) {
   const [state, setState] = useState(initialState);
   const { page, filters, selectedLog } = state;
-  const previousKeyRef = useRef(`${username}:${reponame}`);
-
-  useEffect(() => {
-    setState({
-      page: 1,
-      filters: initialFilters,
-      selectedLog: null,
-    });
-  }, [username, reponame]);
 
   const queryFilters = {
     actionType: filters.actionType || undefined,

@@ -3,12 +3,14 @@ import logo from '../../assets/logo.png';
 import GlobalSearch from '../search/GlobalSearch.jsx';
 import NotificationBell from '../ui/NotificationBell.jsx';
 import { useState } from 'react';
-import { Search, X } from 'lucide-react';
+import { Search, X, Star } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import { useFavoritesStore } from '../../store/useFavoritesStore';
 
 const MinimalPageNav = () => {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const favoritesCount = useFavoritesStore((s) => s.favorites.length);
 
   return (
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/90 backdrop-blur-xl dark:border-zinc-800 dark:bg-[#06070a]/90">
@@ -42,6 +44,15 @@ const MinimalPageNav = () => {
         <nav className="flex items-center gap-4 text-sm text-zinc-600 dark:text-zinc-400">
           <Link to="/activities" className="transition hover:text-zinc-900 dark:hover:text-white">
             Activity
+          </Link>
+          <Link to="/favorites" className="flex items-center gap-1 transition hover:text-zinc-900 dark:hover:text-white">
+            <Star className="w-4 h-4" />
+            Favorites
+            {favoritesCount > 0 && (
+              <span className="ml-0.5 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-500">
+                {favoritesCount}
+              </span>
+            )}
           </Link>
           <Link to="/docs" className="transition hover:text-zinc-900 dark:hover:text-white">
             Docs
@@ -79,3 +90,4 @@ const MinimalPageNav = () => {
 };
 
 export default MinimalPageNav;
+

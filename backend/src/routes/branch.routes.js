@@ -6,12 +6,14 @@ import {
   fetchBranchesValidator,
   createBranchValidator,
   checkoutBranchValidator,
+  renameBranchValidator,
   deleteBranchValidator,
 } from '../validators/branch.validators.js';
 import {
   fetchBranches,
   createRepositoryBranch,
   checkoutRepositoryBranch,
+  renameRepositoryBranch,
   deleteRepositoryBranch,
 } from '../controllers/branch.controller.js';
 
@@ -25,7 +27,7 @@ router.get(
   fetchBranches
 );
 
-// Protected write — only owner can create, checkout, delete
+// Protected write — only owner can create branches
 router.post(
   '/:username/:repoName/branches',
   protect,
@@ -33,6 +35,7 @@ router.post(
   createRepositoryBranch
 );
 
+// Protected write — only owner can checkout branches
 router.post(
   '/:username/:repoName/branches/checkout',
   protect,
@@ -40,6 +43,15 @@ router.post(
   checkoutRepositoryBranch
 );
 
+// Protected write — only owner can rename branches
+router.patch(
+  '/:username/:repoName/branches/rename',
+  protect,
+  validate(renameBranchValidator),
+  renameRepositoryBranch
+);
+
+// Protected write — only owner can delete branches
 router.delete(
   '/:username/:repoName/branches/:branchName',
   protect,

@@ -23,7 +23,7 @@ export const buildRepositoryIndexSteps = () => [
         throw new Error(`Repository directory does not exist at path: ${repoPath}`);
       }
 
-      const files = crawlRepositoryFiles(repoPath);
+      const files = await crawlRepositoryFiles(repoPath);
       const symbols = extractSymbolsFromFiles(files);
       const dependencyEdges = extractDependencyEdgesFromFiles(files, symbols);
 

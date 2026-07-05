@@ -240,7 +240,7 @@ export default function FAQ() {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
             <a
-              href="/docs"
+              href="/documentation"
               className="px-6 md:px-8 py-3 md:py-4 rounded-[20px] bg-gradient-to-r from-[#00dc82] to-[#4fd1ff] text-black font-bold text-base md:text-lg shadow-[0_10px_30px_rgba(0,220,130,0.25)] hover:shadow-[0_15px_40px_rgba(0,220,130,0.35)] hover:scale-[1.02] transition-all duration-300"
             >
               View Documentation

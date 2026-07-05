@@ -63,10 +63,12 @@ router.get(
 
 router.get(
   "/github/callback",
-  passport.authenticate("github", {
-    session: false,
-    failureRedirect: "/login",
-  }),
+  (req, res, next) => {
+    passport.authenticate("github", {
+      session: false,
+      failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`,
+    })(req, res, next);
+  },
   async (req, res) => {
     const jwt = generateToken(req.user._id);
     const code = crypto.randomBytes(32).toString("hex");
