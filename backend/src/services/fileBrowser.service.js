@@ -71,6 +71,13 @@ export const getRepositoryFileContent = async (userId, repoName, filePath) => {
     throw new Error('Repository directory not found!!');
   }
 
+  const normalizedPath = path.normalize(filePath);
+  if (normalizedPath.startsWith('.git') || normalizedPath.includes('/.git/') || normalizedPath === '.git') {
+    const error = new Error('Access to .git directory is forbidden');
+    error.statusCode = 403;
+    throw error;
+  }
+
   const absolutePath = path.resolve(repoPath, filePath);
   if (!absolutePath.startsWith(repoPath)) {
     const error = new Error('Path traversal detected');
