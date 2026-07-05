@@ -1,7 +1,6 @@
 import { createApiClient } from "./createApiClient.js";
-import { API_BASE_URL } from "../utils/apiConfig.js";
 
-const authApi = createApiClient(`${API_BASE_URL}/auth`);
+const authApi = createApiClient("/auth");
 
 export const registerUser = async (userData) => {
   const response = await authApi.post("/register", userData);
@@ -18,8 +17,13 @@ export const getMe = async () => {
   return response.data.data;
 };
 
+export const forgotPassword = async (email) => {
+  const response = await authApi.post("/forgot-password", { email });
+  return response.data;
+};
+
 export const updateUserProfile = async (profileData) => {
-  const response = await createApiClient(`${API_BASE_URL}/users`).put("/profile", profileData);
+  const response = await createApiClient("/users").put("/profile", profileData);
   return response.data.data;
 };
 

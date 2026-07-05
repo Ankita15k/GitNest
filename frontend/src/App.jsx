@@ -7,6 +7,7 @@ import ToastContainer from './components/ui/ToastContainer';
 import './App.css';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import ForgotPassword from './components/auth/ForgotPassword';
 import GitNestHomepage from './pages/GitNestHomepage';
 import DocumentationPage from './pages/DocumentationPage';
 import NotFound from './pages/NotFound';
@@ -23,6 +24,7 @@ import RepositorySettingsPage from './pages/RepositorySettingsPage.jsx';
 import OAuthSuccess from './pages/OAuthSuccess.jsx';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
+import FavoritesPage from './pages/FavoritesPage.jsx';
 
 
 function App() {
@@ -55,6 +57,7 @@ return ( <div className="min-h-screen">
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/" element={<GitNestHomepage />} />
       <Route path="/docs" element={<DocumentationPage />} />
       <Route path="/pull-requests" element={<PullRequestsPage />} />
@@ -63,6 +66,7 @@ return ( <div className="min-h-screen">
         element={<PullRequestDetailPage />}
       />
       <Route path="/activities" element={<ActivityFeedPage />} />
+      <Route path="/favorites" element={<FavoritesPage />} />
       <Route
         path="/:owner/:repo/architecture"
         element={<RepositoryArchitecturePage />}

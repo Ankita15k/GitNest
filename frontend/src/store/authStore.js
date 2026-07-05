@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { loginUser, registerUser, getMe } from "../api/authApi";
+import { loginUser, registerUser, getMe, forgotPassword as forgotPasswordApi } from "../api/authApi";
 
 // Fixed the error extraction to safely handle backend error messages without crashing
 const extractErrorMessage = (error) => {
@@ -120,6 +120,20 @@ export const useAuthStore = create(
             token: null,
             isAuthenticated: false,
           });
+        } finally {
+          set({ loading: false });
+        }
+      },
+
+      // forgot password
+      forgotPassword: async (email) => {
+        set({ loading: true, error: null });
+        try {
+          const res = await forgotPasswordApi(email);
+          return res;
+        } catch (error) {
+          set({ error: extractErrorMessage(error) });
+          throw error;
         } finally {
           set({ loading: false });
         }
