@@ -8,6 +8,7 @@ import {
   createBranch,
   checkoutBranch,
   deleteBranch,
+  renameBranch,
 } from '../services/branch.service.js';
 
 // Helper — finds repo by username and repoName
@@ -74,10 +75,23 @@ export const createRepositoryBranch = asyncHandler(
 
     // Only owner can create branches
     if (req.user._id.toString() !== ownerId.toString()) {
-      return next(new AppError('Not authorized to create branches in this repository', 403));
+      return next(
+        new AppError(
+          'Not authorized to create branches in this repository',
+          403
+        )
+      );
     }
 
-    await createBranch(ownerId.toString(), repository.name, branchName);
+    try {
+      await createBranch(
+        ownerId.toString(),
+        repository.name,
+        branchName
+      );
+    } catch (error) {
+      return next(new AppError(error.message, 400));
+    }
 
     sendSuccess(res, 201, null, 'Branch created successfully');
   }
@@ -102,12 +116,80 @@ export const checkoutRepositoryBranch = asyncHandler(
 
     // Only owner can checkout branches
     if (req.user._id.toString() !== ownerId.toString()) {
-      return next(new AppError('Not authorized to checkout branches in this repository', 403));
+      return next(
+        new AppError(
+          'Not authorized to checkout branches in this repository',
+          403
+        )
+      );
     }
 
-    await checkoutBranch(ownerId.toString(), repository.name, branchName);
+    try {
+      await checkoutBranch(
+        ownerId.toString(),
+        repository.name,
+        branchName
+      );
+    } catch (error) {
+      return next(new AppError(error.message, 400));
+    }
 
     sendSuccess(res, 200, null, 'Branch checked out successfully');
+  }
+);
+
+export const renameRepositoryBranch = asyncHandler(
+  async (req, res, next) => {
+    const { username, repoName } = req.params;
+    const { oldBranchName, newBranchName } = req.body;
+
+    if (!oldBranchName || !newBranchName) {
+      return next(
+        new AppError(
+          'Old and new branch names are required',
+          400
+        )
+      );
+    }
+
+    const result = await getRepositoryByUsername(
+      username,
+      repoName
+    );
+
+    if (!result || !result.repository) {
+      return next(new AppError('Repository not found', 404));
+    }
+
+    const { repository, ownerId } = result;
+
+    // Only owner can rename branches
+    if (req.user._id.toString() !== ownerId.toString()) {
+      return next(
+        new AppError(
+          'Not authorized to rename branches in this repository',
+          403
+        )
+      );
+    }
+
+    try {
+      const renamed = await renameBranch(
+        ownerId.toString(),
+        repository.name,
+        oldBranchName,
+        newBranchName
+      );
+
+      sendSuccess(
+        res,
+        200,
+        renamed,
+        'Branch renamed successfully'
+      );
+    } catch (error) {
+      return next(new AppError(error.message, 400));
+    }
   }
 );
 
@@ -125,11 +207,20 @@ export const deleteRepositoryBranch = asyncHandler(
 
     // Only owner can delete branches
     if (req.user._id.toString() !== ownerId.toString()) {
-      return next(new AppError('Not authorized to delete branches in this repository', 403));
+      return next(
+        new AppError(
+          'Not authorized to delete branches in this repository',
+          403
+        )
+      );
     }
 
     try {
-      await deleteBranch(ownerId.toString(), repository.name, branchName);
+      await deleteBranch(
+        ownerId.toString(),
+        repository.name,
+        branchName
+      );
     } catch (error) {
       return next(new AppError(error.message, 400));
     }

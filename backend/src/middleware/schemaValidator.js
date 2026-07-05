@@ -44,13 +44,13 @@ export const validateResponseContract = (contract = {}) => (req, res, next) => {
     const schema = contract.responses?.[res.statusCode] || contract.responses?.[String(res.statusCode)] || (res.statusCode >= 400 ? sharedSchemas.errorEnvelope : null);
     const validate = validatorFor(schema);
     if (validate && !validate(payload)) {
-      return originalJson({
+      return res.status(500).json({
         success: false,
         status: 'error',
         statusCode: 500,
         code: ERROR_CODES.SERVER_ERROR,
-        message: 'Response contract validation failed',
-        errors: formatErrors(validate.errors, 'response'),
+        message: "Response contract validation failed",
+        errors: formatErrors(validate.errors, "response"),
         requestId: req.requestId || res.locals?.requestId || null,
         timestamp: new Date().toISOString(),
       });

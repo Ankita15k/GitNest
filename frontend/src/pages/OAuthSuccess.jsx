@@ -5,16 +5,18 @@ import { API_BASE_URL } from "../utils/apiConfig";
 
 function OAuthSuccess() {
   const navigate = useNavigate();
-  const [error, setError] = useState(null);
+
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("code");
+
+  const [error, setError] = useState(
+    code ? null : "OAuth sign-in failed. No code received.",
+  );
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-
-    if (!code) {
-      setError("OAuth sign-in failed. No code received.");
-      return;
-    }
+   if (!code) {
+     return;
+   }
 
     // Remove the code from the URL immediately so it doesn't linger in history
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -46,8 +48,8 @@ function OAuthSuccess() {
     };
 
     exchangeCode();
-  }, [navigate]);
-
+  }, [code, navigate]);
+  
   if (error) {
     return (
       <div style={{ textAlign: "center", marginTop: "4rem" }}>

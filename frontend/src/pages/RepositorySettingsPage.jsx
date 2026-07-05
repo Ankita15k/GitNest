@@ -204,7 +204,7 @@ export default function RepositorySettingsPage() {
               ) : null}
 
               {activeTab === 'audit-log' ? (
-                <AuditLogTab username={username} reponame={reponame} />
+                <AuditLogTab key={`${username}/${reponame}`} username={username} reponame={reponame} />
               ) : null}
             </>
           )}
