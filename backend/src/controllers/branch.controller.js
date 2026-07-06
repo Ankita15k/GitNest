@@ -219,7 +219,8 @@ export const deleteRepositoryBranch = asyncHandler(
       await deleteBranch(
         ownerId.toString(),
         repository.name,
-        branchName
+        branchName,
+        repository.defaultBranch
       );
     } catch (error) {
       return next(new AppError(error.message, 400));
