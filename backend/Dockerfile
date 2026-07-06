@@ -4,8 +4,6 @@ COPY package*.json ./
 RUN npm ci --omit=dev
 
 FROM node:20-alpine AS production
-RUN apk update && apk upgrade --no-cache
-RUN npm install -g npm@latest
 WORKDIR /app
 
 COPY --from=builder /app/node_modules ./node_modules
