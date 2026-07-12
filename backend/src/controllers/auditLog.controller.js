@@ -30,6 +30,10 @@ export const getAuditLogs = asyncHandler(async (req, res) => {
     throw new AppError('Repository not found', 404);
   }
 
+   if (repository.owner.toString() !== req.user._id.toString()) {
+    throw new AppError('Not authorized to view audit logs for this repository', 403);
+  }
+
   const filter = {
     repositoryId: repository._id,
   };

@@ -24,12 +24,16 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: function () {
-        return !this.githubId;
+        return !this.githubId && !this.googleId;
       },
       minlength: 6,
       select: false,
     },
     githubId: {
+      type: String,
+      default: null,
+    },
+    googleId: {
       type: String,
       default: null,
     },

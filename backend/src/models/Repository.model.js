@@ -55,6 +55,12 @@ const repositorySchema = new mongoose.Schema(
         type: [String],
         default: [],
     },
+    collaborators: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    ],
     prCount: {
         type: Number,
         default: 0,
@@ -64,7 +70,10 @@ const repositorySchema = new mongoose.Schema(
 );
 
 repositorySchema.index({ owner: 1, name: 1}, {unique: true});
-repositorySchema.index({ name: 'text', description: 'text', language: 'text', topics: 'text' });
+repositorySchema.index(
+  { name: 'text', description: 'text', language: 'text', topics: 'text' },
+  { language_override: 'lang' }
+);
 
 const Repository = mongoose.model('Repository', repositorySchema);
 export default Repository;

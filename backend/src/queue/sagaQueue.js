@@ -12,16 +12,30 @@ class SagaQueue {
    * Enqueues a Saga execution job.
    * Runs the queue processor in the background.
    *
+   * If a job with the same sagaId is already active or queued, returns the
+   * existing promise rather than enqueuing a second job. This mirrors the
+   * SagaOrchestrator's own idempotency check and prevents the activeJobs
+   * Map from being overwritten, which would orphan the first caller's promise
+   * and cause it to hang forever (see issue #479).
+   *
    * @param {string} sagaId
    * @param {string} type
    * @param {Array} steps
    * @param {Object} initialContext
    * @param {Object} options
-   * @returns {Promise<Object>} Resolves when the saga has been successfully enqueued
+   * @returns {Promise<Object>} Resolves when the saga job finishes processing
    */
   async enqueue(sagaId, type, steps, initialContext = {}, options = {}) {
+    // Deduplication guard: if this sagaId is already in flight, return the
+    // existing promise so both callers share the same result without enqueuing
+    // a duplicate job or overwriting the activeJobs entry.
+    if (this.activeJobs.has(sagaId)) {
+      devLog(`[SagaQueue] Duplicate enqueue for sagaId: ${sagaId} — returning existing promise`);
+      return this.activeJobs.get(sagaId);
+    }
+
     devLog(`[SagaQueue] Enqueuing job ${type} with sagaId: ${sagaId}`);
-    
+
     // Construct a promise that will resolve or reject when the job finishes processing
     const jobPromise = new Promise((resolve, reject) => {
       this.queue.push({
@@ -84,7 +98,7 @@ class SagaQueue {
   }
 
   /**
-   * Returns the promise of an active job so callers can wait on it if desired.
+   * Returns the promise of an active job so callers can wait on it if desired.\
    */
   getJobPromise(sagaId) {
     return this.activeJobs.get(sagaId);

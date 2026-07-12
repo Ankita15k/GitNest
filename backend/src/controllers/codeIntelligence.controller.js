@@ -1,16 +1,26 @@
 import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/AppError.js';
 import { sendSuccess } from '../utils/responseHandlers.js';
+import path from 'path';
+import fs from 'fs';
 import User from '../models/User.model.js';
 import Repository from '../models/Repository.model.js';
 import SagaState from '../models/SagaState.model.js';
 import IndexedSymbol from '../models/IndexedSymbol.model.js';
+import DependencyGraph from '../models/DependencyGraph.model.js';
 import { triggerRepositoryIndex, REPOSITORY_INDEX_TYPE } from '../services/repositoryIndexer.service.js';
+import { crawlRepositoryFiles } from '../security/fileCrawler.js';
+import { extractSymbolsFromFiles } from '../services/symbolExtractor.js';
+import { DependencyGraphBuilder } from '../services/dependencyGraphBuilder.service.js';
+import { ImpactAnalysis } from '../services/impactAnalysis.service.js';
+import { ArchitectureMapping } from '../services/architectureMapping.service.js';
+import { HealthScoring } from '../services/healthScoring.service.js';
+import { PolicyEvaluation } from '../services/policyEvaluation.service.js';
 import paginate, { buildPaginationMeta } from '../utils/paginate.js';
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const resolveRepository = async ({ username, reponame, userId, requireOwner = false }) => {
+export const resolveRepository = async ({ username, reponame, userId, requireOwner = false }) => {
   const owner = await User.findOne({ username: username.toLowerCase() });
   if (!owner) throw new AppError('Repository not found', 404);
 
@@ -28,6 +38,8 @@ const resolveRepository = async ({ username, reponame, userId, requireOwner = fa
 
   return { owner, repository };
 };
+
+const repositoryPathFor = (ownerId, repoName) => path.resolve(process.cwd(), 'repositories', ownerId.toString(), repoName);
 
 export const triggerIndexing = asyncHandler(async (req, res) => {
   const { username, reponame } = req.params;
@@ -74,6 +86,7 @@ export const getIndexingStatus = asyncHandler(async (req, res, next) => {
     data.summary = {
       fileCount: sagaState.metadata.fileCount || 0,
       symbolCount: sagaState.metadata.symbolCount || 0,
+      dependencyEdgeCount: sagaState.metadata.dependencyEdgeCount || 0,
       indexedAt: sagaState.metadata.indexedAt,
     };
   } else if (sagaState.status === 'rolled_back' || sagaState.status === 'failed') {
@@ -126,4 +139,111 @@ export const getSymbolDetails = asyncHandler(async (req, res, next) => {
   }
 
   sendSuccess(res, 200, symbol, 'Symbol details retrieved');
+});
+
+export const rebuildDependencies = asyncHandler(async (req, res) => {
+  const { username, reponame } = req.params;
+  const { owner, repository } = await resolveRepository({
+    username,
+    reponame,
+    userId: req.user.id,
+    requireOwner: true,
+  });
+
+  const repoPath = repositoryPathFor(owner._id, repository.name);
+  if (!fs.existsSync(repoPath)) {
+    throw new AppError('Repository directory not found', 404);
+  }
+
+  const files = await crawlRepositoryFiles(repoPath);
+  const symbols = extractSymbolsFromFiles(files);
+  const { edgeCount } = await DependencyGraphBuilder.rebuild({
+    repositoryId: repository._id,
+    files,
+    symbols,
+  });
+  await ArchitectureMapping.generateAndPersist({
+    repositoryId: repository._id,
+    repositoryName: repository.name,
+  });
+  const health = await HealthScoring.generateAndPersist({
+    repositoryId: repository._id,
+    repositoryName: repository.name,
+  });
+  await PolicyEvaluation.evaluateAndPersist({
+    repositoryId: repository._id,
+    repositoryName: repository.name,
+    health,
+  });
+
+  sendSuccess(res, 200, { edgeCount }, 'Dependency graph rebuilt');
+});
+
+export const listDependencies = asyncHandler(async (req, res) => {
+  const { username, reponame } = req.params;
+  const { dependencyType, file, symbol } = req.query;
+  const { repository } = await resolveRepository({
+    username,
+    reponame,
+    userId: req.user.id,
+    requireOwner: true,
+  });
+
+  const { page, limit, skip } = paginate(req.query.page, req.query.limit);
+  const query = { repositoryId: repository._id };
+  if (dependencyType) query.dependencyType = dependencyType;
+  if (file) query.filePath = file;
+  if (symbol) {
+    query.$or = [
+      { sourceSymbol: { $regex: escapeRegex(symbol), $options: 'i' } },
+      { targetSymbol: { $regex: escapeRegex(symbol), $options: 'i' } },
+    ];
+  }
+
+  const [dependencies, totalCount] = await Promise.all([
+    DependencyGraph.find(query).sort({ filePath: 1, dependencyType: 1 }).skip(skip).limit(limit),
+    DependencyGraph.countDocuments(query),
+  ]);
+
+  sendSuccess(
+    res,
+    200,
+    { dependencies, pagination: buildPaginationMeta(page, limit, totalCount) },
+    'Dependencies retrieved successfully'
+  );
+});
+
+export const getDependencyImpact = asyncHandler(async (req, res) => {
+  const { username, reponame } = req.params;
+  const { file, symbol, depth } = req.query;
+  const { repository } = await resolveRepository({
+    username,
+    reponame,
+    userId: req.user.id,
+  });
+
+  const impact = await ImpactAnalysis.analyze({
+    repositoryId: repository._id,
+    file,
+    symbol,
+    maxDepth: depth ? Number(depth) : 3,
+  });
+
+  sendSuccess(res, 200, impact, 'Dependency impact retrieved');
+});
+
+export const getSymbolDependencies = asyncHandler(async (req, res) => {
+  const { username, reponame, symbolName } = req.params;
+  const { repository } = await resolveRepository({
+    username,
+    reponame,
+    userId: req.user.id,
+  });
+
+  const [dependencies, dependents] = await Promise.all([
+    DependencyGraph.find({ repositoryId: repository._id, sourceSymbol: symbolName }).sort({ filePath: 1 }),
+    DependencyGraph.find({ repositoryId: repository._id, targetSymbol: symbolName }).sort({ filePath: 1 }),
+  ]);
+
+  sendSuccess(res, 200, { symbolName, dependencies, dependents }, 'Symbol dependencies retrieved');
 });

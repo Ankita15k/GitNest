@@ -15,9 +15,23 @@ const errorHandler = (err, req, res, next) => {
 
   if (err.code === 11000) {
     statusCode = 400;
-    const field = Object.keys(err.keyValue || {})[0] || 'field';
-    message = `${field} already exists`;
-    errors = [{ field, message }];
+    const keyValue = err.keyValue || {};
+    const keys = Object.keys(keyValue);
+
+    // For compound indexes, show the field that actually violates uniqueness
+    // err.keyPattern contains the full compound index definition
+    if (keys.length > 1 || !keys.length) {
+      const keyPattern = err.keyPattern || {};
+      const patternKeys = Object.keys(keyPattern);
+      // Show the most specific field (non-objectid, non-owner fields first)
+      const preferred = patternKeys.find(k => k !== 'owner' && k !== '_id') || keys[0] || 'field';
+      message = `${preferred} already exists`;
+      errors = [{ field: preferred, message }];
+    } else {
+      const field = keys[0] || 'field';
+      message = `${field} already exists`;
+      errors = [{ field, message }];
+    }
   }
 
   if (err.name === 'ValidationError' && err.errors) {

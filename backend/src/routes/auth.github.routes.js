@@ -1,25 +1,58 @@
 import express from "express";
 import crypto from "crypto";
 import passport from "passport";
+import rateLimit from "express-rate-limit";
 import generateToken from "../utils/generateToken.js";
+import { getRedisClient } from "../config/redis.js";
+import { sendError } from "../utils/responseHandlers.js";
+import ERROR_CODES from "../constants/errorCodes.js";
 
 const router = express.Router();
 
-// In-memory store for one-time exchange codes.
-// Replace with Redis (SETEX) in production for multi-instance deployments.
-const exchangeCodes = new Map();
+const toNumber = (value, fallback) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
 
-// Sweep expired codes every 60 seconds instead of one setTimeout per code.
-// This avoids N dangling timers under load and handles server-restart invalidation cleanly.
-const SWEEP_INTERVAL_MS = (Number(process.env.OAUTH_CODE_TTL_MS) || 30_000);
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of exchangeCodes) {
-    if (now > entry.expiresAt) {
-      exchangeCodes.delete(key);
-    }
+const EXCHANGE_CODE_TTL_S = toNumber(process.env.OAUTH_CODE_TTL_S, 300); // 5 minutes
+const CODE_PREFIX = "oauth:code:";
+
+// Rate limiter for the /exchange endpoint — 5 attempts per IP per minute
+const exchangeLimiter = rateLimit({
+  windowMs: toNumber(process.env.OAUTH_EXCHANGE_RATE_LIMIT_WINDOW_MS, 60 * 1000),
+  max: toNumber(process.env.OAUTH_EXCHANGE_RATE_LIMIT_MAX, 5),
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+  handler: (req, res) => {
+    sendError(res, {
+      statusCode: 429,
+      code: ERROR_CODES.RATE_LIMITED,
+      message: "Too many exchange requests. Please wait before trying again.",
+      requestId: req.requestId,
+    });
+  },
+});
+
+// Helper: constant-time comparison to prevent timing attacks
+const timingSafeEqual = (a, b) => {
+  if (a.length !== b.length) {
+    // Use crypto.timingSafeEqual on fixed-length dummy to avoid leaking length
+    const dummy = Buffer.alloc(a.length);
+    crypto.timingSafeEqual(dummy, dummy);
+    return false;
   }
-}, SWEEP_INTERVAL_MS).unref(); // .unref() so this timer doesn't keep the process alive during tests
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+};
+
+// Helper: validate exchange code format (64 hex characters)
+const isValidCodeFormat = (code) => /^[0-9a-f]{64}$/.test(code);
+
+// Helper: log failed exchange attempts
+const logFailedExchange = (ip, codePrefix, reason) => {
+  const timestamp = new Date().toISOString();
+  console.warn(`[OAUTH] Failed exchange | ip=${ip} code_prefix=${codePrefix} reason=${reason} ts=${timestamp}`);
+};
 
 router.get(
   "/github",
@@ -30,48 +63,82 @@ router.get(
 
 router.get(
   "/github/callback",
-  passport.authenticate("github", {
-    session: false,
-    failureRedirect: "/login",
-  }),
-  (req, res) => {
-    // Read TTL at request time — safe for test overrides and future config reloads
-    const codeTtlMs = Number(process.env.OAUTH_CODE_TTL_MS) || 30_000;
-
+  (req, res, next) => {
+    passport.authenticate("github", {
+      session: false,
+      failureRedirect: `${process.env.FRONTEND_URL || "http://localhost:5173"}/login`,
+    })(req, res, next);
+  },
+  async (req, res) => {
     const jwt = generateToken(req.user._id);
     const code = crypto.randomBytes(32).toString("hex");
 
-    exchangeCodes.set(code, {
-      jwt,
-      expiresAt: Date.now() + codeTtlMs,
-    });
+    const redis = getRedisClient();
+    if (redis) {
+      // Redis-backed storage — all instances share the same store
+      await redis.setex(`${CODE_PREFIX}${code}`, EXCHANGE_CODE_TTL_S, jwt);
+    } else {
+      // Fallback: use a module-level Map (single-instance dev only)
+      // This branch should never be reached in production with REDIS_URL configured.
+      console.warn("[OAUTH] Redis unavailable — falling back to in-memory exchange code store");
+      const fallbackStore = global.__oauthFallbackStore ||
+        (global.__oauthFallbackStore = new Map());
+      fallbackStore.set(code, {
+        jwt,
+        expiresAt: Date.now() + EXCHANGE_CODE_TTL_S * 1000,
+      });
+    }
 
-    // Token never touches the URL — only the opaque, short-lived code does
     res.redirect(`${process.env.FRONTEND_URL}/oauth-success?code=${code}`);
   },
 );
 
 // Frontend POSTs the opaque code here and receives the real JWT in the response body.
-// The code is single-use and expires after OAUTH_CODE_TTL_MS (default 30s).
-router.post("/exchange", (req, res) => {
+// Rate-limited to prevent brute-force attacks.
+router.post("/exchange", exchangeLimiter, async (req, res) => {
   const { code } = req.body;
+  const clientIp = req.ip || req.connection?.remoteAddress || "unknown";
 
   if (!code || typeof code !== "string") {
+    logFailedExchange(clientIp, "N/A", "missing_code");
     return res.status(400).json({ message: "Missing exchange code" });
   }
 
-  const entry = exchangeCodes.get(code);
+  // Validate code format (64 hex characters)
+  if (!isValidCodeFormat(code)) {
+    logFailedExchange(clientIp, code.substring(0, 8), "invalid_format");
+    return res.status(400).json({ message: "Invalid exchange code format" });
+  }
 
-  // Treat missing and expired the same way — no information leakage
-  if (!entry || Date.now() > entry.expiresAt) {
-    exchangeCodes.delete(code); // clean up if expired entry exists
+ const redis = getRedisClient();
+  let jwt = null;
+
+  if (redis) {
+    // Single atomic GETDEL — eliminates redundant GET call
+    // and closes the race condition window between GET and GETDEL
+    const raw = await redis.getdel(`${CODE_PREFIX}${code}`);
+    if (raw) {
+      jwt = raw;
+    }
+  } else {
+    const fallbackStore = global.__oauthFallbackStore;
+    if (fallbackStore) {
+      const entry = fallbackStore.get(code);
+      if (entry && Date.now() <= entry.expiresAt) {
+        fallbackStore.delete(code);
+        jwt = entry.jwt;
+      } else if (entry) {
+        fallbackStore.delete(code);
+      }
+    }
+  }
+
+  if (!jwt) {
+    logFailedExchange(clientIp, code.substring(0, 8), "not_found_or_expired");
     return res.status(401).json({ message: "Invalid or expired exchange code" });
   }
 
-  // Single-use — delete before responding so a racing duplicate request gets 401
-  exchangeCodes.delete(code);
-
-  return res.status(200).json({ token: entry.jwt });
+  return res.status(200).json({ token: jwt });
 });
 
 export default router;

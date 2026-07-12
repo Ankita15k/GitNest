@@ -2,20 +2,16 @@ import User from "../models/User.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import { sendSuccess } from "../utils/responseHandlers.js";
-import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import generateToken from "../utils/generateToken.js";
 import eventEmitter from '../events/eventEmitter.js';
-// const generateToken = (id) => {
-//   if (!process.env.JWT_SECRET) {
-//     throw new Error('JWT_SECRET is not configured in environment');
-//   }
-//   return jwt.sign({ id }, process.env.JWT_SECRET, {
-//     expiresIn: process.env.JWT_EXPIRE || '30d',
-//   });
-// };
 
 export const register = asyncHandler(async (req, res, next) => {
+  // Prevent Mass Assignment Privilege Escalation (Issue #427)
+  delete req.body.role;
+  delete req.body.isAdmin;
+  delete req.body.permissions;
+
   const { username, email, password } = req.body;
 
   const userExists = await User.findOne({ $or: [{ email }, { username }] });
@@ -78,21 +74,7 @@ export const getMe = asyncHandler(async (req, res, next) => {
   sendSuccess(res, 200, req.user, "User profile fetched successfully");
 });
 
-/**
- * Forgot Password — POST /api/v1/auth/forgot-password
- *
- * Accepts an email address and generates a password reset token.
- * The raw token is returned in the response so the frontend can
- * build a reset URL (e.g. /reset-password?token=<raw>).
- *
- * In production the token would be delivered via a transactional
- * email service (SendGrid, AWS SES, etc.).  The endpoint always
- * returns 200 regardless of whether the email exists in the
- * database to prevent user enumeration.
- *
- * Rate limited at the route level to prevent email-based DoS —
- * see forgotPasswordLimiter in auth.routes.js.
- */
+
 export const forgotPassword = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
 
@@ -117,9 +99,6 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
     ipAddress: req.ip,
   });
 
-  // In a production environment the resetToken would be embedded in an
-  // email link.  For now, include it in the response so the frontend
-  // can use it directly during development / testing.
   sendSuccess(
     res,
     200,
@@ -131,14 +110,6 @@ export const forgotPassword = asyncHandler(async (req, res, next) => {
   );
 });
 
-/**
- * Reset Password — POST /api/v1/auth/reset-password/:token
- *
- * Accepts a raw reset token (from the URL / email link) and a new
- * password.  The token is hashed with SHA-256 and compared against
- * the stored hash.  If the token is valid and not expired the
- * password is updated and all reset fields are cleared.
- */
 export const resetPassword = asyncHandler(async (req, res, next) => {
   const hashedToken = crypto
     .createHash("sha256")

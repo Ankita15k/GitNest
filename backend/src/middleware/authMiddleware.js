@@ -66,10 +66,12 @@ export const optionalAuth = optionalProtect;
  * Resource-level authorization guard for pull request write operations.
  *
  * role options:
- *   'author'     — PR author OR repo owner may proceed (update, close)
- *   'repoOwner'  — only the repo owner may proceed (merge)
- *   'readMember' — any authenticated user on public repos; author or repo
- *                  owner only on private repos (comment, review)
+ *   'author'           — PR author OR repo owner may proceed (update, close)
+ *   'repoOwner'        — only the repo owner may proceed (merge)
+ *   'readMember'       — any authenticated user on public repos; author or repo
+ *                        owner only on private repos (comment, review)
+ *   'repoCollaborator' — collaborators, PR author, or repo owner may proceed
+ *                        (comment, review on any repo)
  *
  * Attaches req.pullRequest and req.prRepository so downstream handlers
  * skip a redundant DB round-trip.
@@ -90,7 +92,7 @@ export const requirePullRequestAccess = (role) =>
       return next(new AppError('Pull request not found', 404));
     }
 
-    const repository = await Repository.findById(pullRequest.repository._id).select('owner visibility');
+    const repository = await Repository.findById(pullRequest.repository._id).select('owner visibility collaborators');
     if (!repository) {
       return next(new AppError('Repository not found', 404));
     }
@@ -101,6 +103,7 @@ export const requirePullRequestAccess = (role) =>
 
     const isAuthor = userId === authorId;
     const isOwner = userId === ownerId;
+    const isCollaborator = repository.collaborators?.some(c => c.toString() === userId) ?? false;
 
     if (role === 'repoOwner' && !isOwner) {
       return next(new AppError('Not authorized to perform this action', 403));
@@ -111,6 +114,10 @@ export const requirePullRequestAccess = (role) =>
     }
 
     if (role === 'readMember' && repository.visibility === 'private' && !isAuthor && !isOwner) {
+      return next(new AppError('Not authorized to perform this action', 403));
+    }
+
+    if (role === 'repoCollaborator' && !isOwner && !isCollaborator && !isAuthor) {
       return next(new AppError('Not authorized to perform this action', 403));
     }
 

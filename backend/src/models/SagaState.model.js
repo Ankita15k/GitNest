@@ -34,6 +34,10 @@ const sagaStateSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
+    lastHeartbeatAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

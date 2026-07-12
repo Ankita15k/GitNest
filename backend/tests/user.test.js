@@ -185,4 +185,76 @@ describe('GET /api/v1/users/:username/following', () => {
     expect(res.statusCode).toBe(404);
     expect(res.body.success).toBe(false);
   });
+
+  it('should not allow following the same user twice', async () => {
+    const token = await registerAndLogin(validUser);
+    await request(app).post('/api/v1/auth/register').send(otherUser);
+
+    await request(app)
+      .post('/api/v1/users/otheruser/follow')
+      .set('Authorization', `Bearer ${token}`);
+
+    const res = await request(app)
+      .post('/api/v1/users/otheruser/follow')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect([400, 409]).toContain(res.statusCode);
+    expect(res.body.success).toBe(false);
+  });
+
+
+  it('should return 401 for invalid token', async () => {
+    const res = await request(app)
+      .put('/api/v1/users/profile')
+      .set('Authorization', 'Bearer invalid-token')
+      .send({ bio: 'Hello' });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.success).toBe(false);
+  });
+
+
+  it('should return error when unfollowing a user not followed', async () => {
+    const token = await registerAndLogin(validUser);
+    await request(app).post('/api/v1/auth/register').send(otherUser);
+
+    const res = await request(app)
+      .delete('/api/v1/users/otheruser/follow')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect([400, 404]).toContain(res.statusCode);
+  });
+
+  it('should return 404 when unfollowing non-existent user', async () => {
+    const token = await registerAndLogin(validUser);
+
+    const res = await request(app)
+      .delete('/api/v1/users/ghostuser999/follow')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toBe(404);
+  });
+
+  it('should reject invalid profile fields', async () => {
+    const token = await registerAndLogin(validUser);
+
+    const res = await request(app)
+      .put('/api/v1/users/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ invalidField: 'test' });
+
+    expect([400, 422]).toContain(res.statusCode);
+  });
+
+  it('should reject excessively long bio', async () => {
+    const token = await registerAndLogin(validUser);
+
+    const res = await request(app)
+      .put('/api/v1/users/profile')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ bio: 'a'.repeat(5000) });
+
+    expect([400, 422]).toContain(res.statusCode);
+  });
+
 });

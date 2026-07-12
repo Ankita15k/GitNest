@@ -6,6 +6,7 @@ import {
   getPullRequest,
   listPullRequests,
   mergePullRequest,
+  comparePullRequestBranches,
   submitPullRequestReview,
   updatePullRequest,
 } from '../controllers/pullRequest.controller.js';
@@ -18,6 +19,7 @@ const router = express.Router();
 // optionalProtect lets the handler know who is calling so visibility filtering
 // can include the authenticated user's private-repo PRs when a token is present
 router.get('/', optionalProtect, ...schemaValidator(contracts.pullRequests.list), listPullRequests);
+router.get('/compare', optionalProtect, comparePullRequestBranches);
 router.get('/:id', optionalProtect, ...schemaValidator(contracts.pullRequests.detail), getPullRequest);
 router.post('/', protect, ...schemaValidator(contracts.pullRequests.create), createPullRequest);
 
@@ -28,9 +30,8 @@ router.post('/:id/close', protect, requirePullRequestAccess('author'), ...schema
 // Only the repo owner may merge
 router.post('/:id/merge', protect, requirePullRequestAccess('repoOwner'), ...schemaValidator(contracts.pullRequests.merge), mergePullRequest);
 
-// Any authenticated user may comment or review on public repos;
-// private-repo PRs are restricted to PR author and repo owner
-router.post('/:id/comments', protect, requirePullRequestAccess('readMember'), ...schemaValidator(contracts.pullRequests.comment), addPullRequestComment);
-router.post('/:id/reviews', protect, requirePullRequestAccess('readMember'), ...schemaValidator(contracts.pullRequests.review), submitPullRequestReview);
+// Collaborators, PR author, and repo owner may comment or review
+router.post('/:id/comments', protect, requirePullRequestAccess('repoCollaborator'), ...schemaValidator(contracts.pullRequests.comment), addPullRequestComment);
+router.post('/:id/reviews', protect, requirePullRequestAccess('repoCollaborator'), ...schemaValidator(contracts.pullRequests.review), submitPullRequestReview);
 
 export default router;

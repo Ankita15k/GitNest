@@ -23,6 +23,7 @@ import RepositorySettingsPage from './pages/RepositorySettingsPage.jsx';
 import OAuthSuccess from './pages/OAuthSuccess.jsx';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
+import FavoritesPage from './pages/FavoritesPage.jsx';
 
 
 function App() {
@@ -35,6 +36,18 @@ document.documentElement.classList.add("dark");
 document.documentElement.classList.remove("dark");
 }
 }, [isDarkMode]);
+  
+useEffect(() => {
+    const loader = document.getElementById('loader-wrapper');
+    if (loader) {
+      loader.style.opacity = '0';
+      loader.style.visibility = 'hidden';
+      const timeoutId = setTimeout(() => {
+        loader.remove();
+      }, 900);
+      return () => clearTimeout(timeoutId);
+    }
+}, []);
 
 return ( <div className="min-h-screen">
   <ToastContainer />
@@ -51,6 +64,7 @@ return ( <div className="min-h-screen">
         element={<PullRequestDetailPage />}
       />
       <Route path="/activities" element={<ActivityFeedPage />} />
+      <Route path="/favorites" element={<FavoritesPage />} />
       <Route
         path="/:owner/:repo/architecture"
         element={<RepositoryArchitecturePage />}
@@ -83,3 +97,5 @@ return ( <div className="min-h-screen">
 }
 
 export default App;
+
+

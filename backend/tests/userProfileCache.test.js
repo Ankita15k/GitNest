@@ -73,10 +73,6 @@ jest.unstable_mockModule('../src/models/Repository.model.js', () => ({
   },
 }));
 
-jest.unstable_mockModule('../src/services/activity.service.js', () => ({
-  logActivity: jest.fn().mockResolvedValue(undefined),
-}));
-
 jest.unstable_mockModule('jsonwebtoken', () => ({
   default: {
     sign:   jest.fn(() => 'signed.jwt.token'),
@@ -119,7 +115,7 @@ describe('user profile cache invalidation', () => {
       const user = makeUser({ bio: 'updated bio' });
       mockUserFindById
         .mockResolvedValueOnce(user)          // protect middleware
-        .mockImplementation(() => ({          // second call inside handler
+        .mockImplementation(() => ({
           select: jest.fn().mockResolvedValue(makeUser()),
         }));
 
@@ -207,6 +203,37 @@ describe('user profile cache invalidation', () => {
         .send({ bio: 'another bio' });
 
       expect(res.status).toBe(200);
+    });
+  });
+
+  // ── getUserProfile cache key ───────────────────────────────────────────────
+
+  describe('getUserProfile cache key generation', () => {
+    test('uses lowercase username cache key for mixed-case username route params (Redis GET + SET)', async () => {
+      // Mixed-case route param: /currentUser should map to user:profile:currentuser
+      mockRedisGet.mockResolvedValueOnce(null);
+
+      mockUserFindOne.mockReturnValueOnce({
+        lean: jest.fn().mockResolvedValue(
+          makeUser({
+            username: 'currentuser',
+          }),
+        ),
+      });
+
+      const res = await request(app)
+        .get('/api/v1/users/CurrentUser')
+        .set('Authorization', AUTH);
+
+      expect(res.status).toBe(200);
+
+      expect(mockRedisGet).toHaveBeenCalledWith('user:profile:currentuser');
+      expect(mockRedisSet).toHaveBeenCalledWith(
+        'user:profile:currentuser',
+        expect.any(String),
+        'EX',
+        60,
+      );
     });
   });
 

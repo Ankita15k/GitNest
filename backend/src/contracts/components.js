@@ -228,6 +228,254 @@ const indexedSymbol = {
   required: ['repositoryId', 'repositoryName', 'owner', 'filePath', 'symbolName', 'symbolType', 'line'],
 };
 
+const dependencyGraph = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    _id: { type: 'string' },
+    repositoryId: { type: 'string' },
+    filePath: { type: 'string' },
+    sourceSymbol: { type: 'string' },
+    sourceType: { type: 'string' },
+    targetSymbol: { type: 'string' },
+    targetType: { type: 'string' },
+    dependencyType: { type: 'string' },
+    metadata: { type: 'object', additionalProperties: true },
+    createdAt: timestamp,
+  },
+  required: ['repositoryId', 'filePath', 'sourceSymbol', 'sourceType', 'targetSymbol', 'targetType', 'dependencyType'],
+};
+
+const riskScore = { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] };
+
+const architectureHotspot = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    moduleName: { type: 'string' },
+    referenceCount: { type: 'integer', minimum: 0 },
+    dependentFileCount: { type: 'integer', minimum: 0 },
+    reasons: { type: 'array', items: { type: 'string' } },
+  },
+  required: ['moduleName', 'referenceCount', 'dependentFileCount', 'reasons'],
+};
+
+const architectureModule = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    moduleName: { type: 'string' },
+    fileCount: { type: 'integer', minimum: 0 },
+    symbolCount: { type: 'integer', minimum: 0 },
+    dependencyCount: { type: 'integer', minimum: 0 },
+    dependentCount: { type: 'integer', minimum: 0 },
+    couplingLevel: { type: 'integer', minimum: 0 },
+    riskScore,
+  },
+  required: ['moduleName', 'dependencyCount', 'dependentCount', 'riskScore'],
+};
+
+const architectureAnalysis = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    _id: { type: 'string' },
+    repositoryId: { type: 'string' },
+    repositoryName: { type: 'string' },
+    complexityScore: { type: 'number', minimum: 0 },
+    riskScore,
+    hotspotCount: { type: 'integer', minimum: 0 },
+    circularDependencyCount: { type: 'integer', minimum: 0 },
+    criticalModuleCount: { type: 'integer', minimum: 0 },
+    summary: { type: 'string' },
+    metrics: {
+      type: 'object',
+      additionalProperties: true,
+      properties: {
+        moduleCount: { type: 'integer', minimum: 0 },
+        dependencyCount: { type: 'integer', minimum: 0 },
+        dependencyDensity: { type: 'number', minimum: 0 },
+        modules: { type: 'array', items: architectureModule },
+        hotspots: { type: 'array', items: architectureHotspot },
+        circularDependencies: { type: 'array', items: { type: 'array', items: { type: 'string' } } },
+      },
+    },
+    generatedAt: timestamp,
+  },
+  required: [
+    'repositoryId',
+    'repositoryName',
+    'complexityScore',
+    'riskScore',
+    'hotspotCount',
+    'circularDependencyCount',
+    'criticalModuleCount',
+    'summary',
+    'metrics',
+    'generatedAt',
+  ],
+};
+
+const healthCategory = { type: 'string', enum: ['Excellent', 'Good', 'Fair', 'Poor', 'Critical'] };
+
+const repositoryHealth = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    _id: { type: 'string' },
+    repositoryId: { type: 'string' },
+    repositoryName: { type: 'string' },
+    overallScore: { type: 'integer', minimum: 0, maximum: 100 },
+    securityScore: { type: 'integer', minimum: 0, maximum: 100 },
+    architectureScore: { type: 'integer', minimum: 0, maximum: 100 },
+    activityScore: { type: 'integer', minimum: 0, maximum: 100 },
+    maintainabilityScore: { type: 'integer', minimum: 0, maximum: 100 },
+    healthCategory,
+    summary: { type: 'string' },
+    metrics: { type: 'object', additionalProperties: true },
+    generatedAt: timestamp,
+  },
+  required: [
+    'repositoryId',
+    'repositoryName',
+    'overallScore',
+    'securityScore',
+    'architectureScore',
+    'activityScore',
+    'maintainabilityScore',
+    'healthCategory',
+    'metrics',
+    'generatedAt',
+  ],
+};
+
+const repositoryHealthBreakdown = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    overallScore: { type: 'integer', minimum: 0, maximum: 100 },
+    healthCategory,
+    scores: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        security: { type: 'integer', minimum: 0, maximum: 100 },
+        architecture: { type: 'integer', minimum: 0, maximum: 100 },
+        activity: { type: 'integer', minimum: 0, maximum: 100 },
+        maintainability: { type: 'integer', minimum: 0, maximum: 100 },
+      },
+      required: ['security', 'architecture', 'activity', 'maintainability'],
+    },
+    metrics: { type: 'object', additionalProperties: true },
+    generatedAt: timestamp,
+  },
+  required: ['overallScore', 'healthCategory', 'scores', 'metrics', 'generatedAt'],
+};
+
+const repositoryHealthRecommendation = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    code: { type: 'string' },
+    message: { type: 'string' },
+  },
+  required: ['code', 'message'],
+};
+
+const complianceStatus = { type: 'string', enum: ['COMPLIANT', 'WARNING', 'NON_COMPLIANT'] };
+const complianceCheckStatus = { type: 'string', enum: ['PASS', 'WARNING', 'FAIL'] };
+
+const complianceCheck = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    code: { type: 'string' },
+    message: { type: 'string' },
+    severity: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] },
+    value: {},
+    threshold: {},
+  },
+  required: ['code', 'message', 'severity'],
+};
+
+const compliancePolicyResult = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    code: { type: 'string' },
+    status: complianceCheckStatus,
+    value: {},
+    threshold: {},
+    scoreImpact: { type: 'number', minimum: 0 },
+  },
+  required: ['code', 'status', 'scoreImpact'],
+};
+
+const repositoryCompliance = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    _id: { type: 'string' },
+    repositoryId: { type: 'string' },
+    repositoryName: { type: 'string' },
+    complianceStatus,
+    complianceScore: { type: 'integer', minimum: 0, maximum: 100 },
+    violations: { type: 'array', items: complianceCheck },
+    warnings: { type: 'array', items: complianceCheck },
+    passedChecks: { type: 'array', items: complianceCheck },
+    policyResults: { type: 'array', items: compliancePolicyResult },
+    metrics: { type: 'object', additionalProperties: true },
+    generatedAt: timestamp,
+  },
+  required: [
+    'repositoryId',
+    'repositoryName',
+    'complianceStatus',
+    'complianceScore',
+    'violations',
+    'warnings',
+    'passedChecks',
+    'policyResults',
+    'metrics',
+    'generatedAt',
+  ],
+};
+
+const repositoryComplianceReport = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    summary: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        repositoryName: { type: 'string' },
+        complianceStatus,
+        complianceScore: { type: 'integer', minimum: 0, maximum: 100 },
+        generatedAt: timestamp,
+        violationCount: { type: 'integer', minimum: 0 },
+        warningCount: { type: 'integer', minimum: 0 },
+        passedCheckCount: { type: 'integer', minimum: 0 },
+      },
+      required: [
+        'repositoryName',
+        'complianceStatus',
+        'complianceScore',
+        'generatedAt',
+        'violationCount',
+        'warningCount',
+        'passedCheckCount',
+      ],
+    },
+    violations: { type: 'array', items: complianceCheck },
+    warnings: { type: 'array', items: complianceCheck },
+    passedChecks: { type: 'array', items: complianceCheck },
+    scoreBreakdown: { type: 'array', items: compliancePolicyResult },
+    metrics: { type: 'object', additionalProperties: true },
+  },
+  required: ['summary', 'violations', 'warnings', 'passedChecks', 'scoreBreakdown', 'metrics'],
+};
+
 export const components = {
   schemas: {
     SuccessEnvelope: successEnvelope({}),
@@ -243,6 +491,15 @@ export const components = {
     PullRequestReview: review,
     DiffFile: diffFile,
     IndexedSymbol: indexedSymbol,
+    DependencyGraph: dependencyGraph,
+    ArchitectureAnalysis: architectureAnalysis,
+    ArchitectureHotspot: architectureHotspot,
+    ArchitectureModule: architectureModule,
+    RepositoryHealth: repositoryHealth,
+    RepositoryHealthBreakdown: repositoryHealthBreakdown,
+    RepositoryHealthRecommendation: repositoryHealthRecommendation,
+    RepositoryCompliance: repositoryCompliance,
+    RepositoryComplianceReport: repositoryComplianceReport,
   },
   securitySchemes: {
     bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
@@ -267,4 +524,18 @@ export const sharedSchemas = {
   diffFile,
   review,
   indexedSymbol,
+  dependencyGraph,
+  architectureAnalysis,
+  architectureHotspot,
+  architectureModule,
+  healthCategory,
+  repositoryHealth,
+  repositoryHealthBreakdown,
+  repositoryHealthRecommendation,
+  complianceStatus,
+  complianceCheck,
+  compliancePolicyResult,
+  repositoryCompliance,
+  repositoryComplianceReport,
+  riskScore,
 };

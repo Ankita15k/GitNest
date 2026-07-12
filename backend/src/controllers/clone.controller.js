@@ -1,3 +1,4 @@
+import fs from 'fs';
 import Repository from '../models/Repository.model.js';
 
 import asyncHandler from '../utils/asyncHandler.js';
@@ -19,11 +20,11 @@ export const cloneExternalRepository = asyncHandler(
       );
     }
 
-    const { repoName } =
-      await cloneRepository(
-        repositoryUrl,
-        req.user.id
-      );
+    const repoName = repositoryUrl
+      .split('/')
+      .pop()
+      .replace(/\.git$/i, '')
+      .replace(/[^a-zA-Z0-9_-]/g, '');
 
     const existingRepository =
       await Repository.findOne({
@@ -40,13 +41,32 @@ export const cloneExternalRepository = asyncHandler(
       );
     }
 
-    const repository =
-      await Repository.create({
-        name: repoName,
-        owner: req.user.id,
-        visibility: 'public',
-        sourceUrl: repositoryUrl,
-      });
+    let cloned;
+    try {
+      cloned = await cloneRepository(
+        repositoryUrl,
+        req.user.id,
+        req.ip
+      );
+    } catch (err) {
+      return next(new AppError(err.message, 400));
+    }
+
+    let repository;
+    try {
+      repository =
+        await Repository.create({
+          name: cloned.repoName,
+          owner: req.user.id,
+          visibility: 'public',
+          sourceUrl: repositoryUrl,
+        });
+    } catch (err) {
+      fs.rmSync(cloned.repoPath, { recursive: true, force: true });
+      return next(
+        new AppError('Failed to create repository record', 500)
+      );
+    }
 
     sendSuccess(
       res,
@@ -55,4 +75,4 @@ export const cloneExternalRepository = asyncHandler(
       'Repository cloned successfully'
     );
   }
-);	
+);

@@ -73,9 +73,9 @@ export const createRule = async (req, res) => {
       const rule = await createBranchProtectionRule(repository._id, req.body);
       eventEmitter.emit('BRANCH_PROTECTION_CREATED', {
         actorId: req.user._id,
-        repositoryId: rule.repository,
+        repositoryId: rule.repositoryId,
         repoName: req.params.reponame,
-        branch: rule.pattern,
+        branch: rule.branchPattern,
         rules: rule.toObject(),
         ipAddress: req.ip,
       });
@@ -100,9 +100,9 @@ export const updateRule = async (req, res) => {
       const rule = await updateBranchProtectionRule(ruleId, repository._id, req.body);
       eventEmitter.emit('BRANCH_PROTECTION_UPDATED', {
         actorId: req.user._id,
-        repositoryId: rule.repository,
+        repositoryId: rule.repositoryId,
         repoName: req.params.reponame,
-        branch: rule.pattern,
+        branch: rule.branchPattern,
         ruleId: rule._id,
         changes: req.body,
         ipAddress: req.ip,

@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Star, GitFork, User, Calendar, GitPullRequest, GitMerge, XCircle, Copy } from 'lucide-react';
+import SearchResultSkeleton from '../skeletons/SearchResultSkeleton';
+import { useFavoritesStore } from '../../store/useFavoritesStore';
 
 const statusConfig = {
   open: { icon: <GitPullRequest className="w-3 h-3" />, label: 'Open', classes: 'bg-emerald-400/10 text-emerald-400' },
@@ -45,7 +47,16 @@ const copyRepoUrl = async (e, repo) => {
   }
 };
 
-const RepositoryResult = ({ repo, navigate }) => (
+const RepositoryResult = ({ repo, navigate }) => {
+  const isFavorite = useFavoritesStore((state) => state.isFavorite(repo));
+  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite);
+
+  const handleToggleFavorite = (e) => {
+    e.stopPropagation();
+    toggleFavorite(repo);
+  };
+
+  return (
   <div
     onClick={() => navigate(`/repositories/${repo.owner.username}/${repo.name}`)}
     className="p-4 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
@@ -55,13 +66,26 @@ const RepositoryResult = ({ repo, navigate }) => (
         {repo.owner.username}/{repo.name}
       </p>
 
-      <button
-        onClick={(e) => copyRepoUrl(e, repo)}
-        className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700"
-        title="Copy Repository URL"
-      >
-        <Copy className="w-4 h-4" />
-      </button>
+      <div className="flex items-center gap-1">
+        <button
+          onClick={handleToggleFavorite}
+          className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700"
+          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          aria-pressed={isFavorite}
+        >
+          <Star
+            className={`w-4 h-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-zinc-500'}`}
+          />
+        </button>
+
+        <button
+          onClick={(e) => copyRepoUrl(e, repo)}
+          className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700"
+          title="Copy Repository URL"
+        >
+          <Copy className="w-4 h-4" />
+        </button>
+      </div>
     </div>
 
     {repo.description && (
@@ -92,7 +116,8 @@ const RepositoryResult = ({ repo, navigate }) => (
       )}
     </div>
   </div>
-);
+  );
+};
 
 const PullRequestResult = ({ pr, navigate }) => {
   const config = statusConfig[pr.status] || statusConfig.open;
@@ -130,7 +155,15 @@ const PullRequestResult = ({ pr, navigate }) => {
 export default function SearchResults({ results, isLoading }) {
   const navigate = useNavigate();
 
-  if (isLoading) return null;
+  if (isLoading) {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <SearchResultSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
 
   if (!results || (Object.values(results.results).every(arr => arr.length === 0))) {
     return (
@@ -179,3 +212,6 @@ export default function SearchResults({ results, isLoading }) {
     </div>
   );
 }
+
+
+

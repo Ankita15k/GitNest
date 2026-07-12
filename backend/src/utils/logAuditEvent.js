@@ -7,17 +7,22 @@ export const logAuditEvent = async ({
   repositoryId = null,
   ipAddress = null,
   metadata = {},
-}) => {
-  try {
-    return await AuditLog.create({
-      actorId,
-      actionType,
-      repositoryId,
-      ipAddress,
-      metadata,
-    });
-  } catch (error) {
-    devLog('[audit-log]', error?.message || error);
-    return null;
+}, retries = 3, backoff = 100) => {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await AuditLog.create({
+        actorId,
+        actionType,
+        repositoryId,
+        ipAddress,
+        metadata,
+      });
+    } catch (error) {
+      if (attempt === retries) {
+        devLog('[audit-log]', error?.message || error);
+        throw error;
+      }
+      await new Promise(resolve => setTimeout(resolve, backoff * attempt));
+    }
   }
 };

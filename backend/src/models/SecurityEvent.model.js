@@ -41,6 +41,10 @@ const securityEventSchema = new mongoose.Schema(
 
 securityEventSchema.index({ repository: 1, createdAt: -1 });
 securityEventSchema.index({ scanId: 1 });
+securityEventSchema.index(
+  { repository: 1, scanId: 1, type: 1, 'metadata.file': 1, 'metadata.line': 1 },
+  { unique: true, sparse: true }
+);
 
 const SecurityEvent = mongoose.model('SecurityEvent', securityEventSchema);
 export default SecurityEvent;

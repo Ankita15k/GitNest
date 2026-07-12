@@ -22,7 +22,7 @@ const scanSteps = [
       }
 
       // 1. Crawl all text files in the repository
-      const files = crawlRepositoryFiles(repoPath);
+      const files = await crawlRepositoryFiles(repoPath);
 
       // 2. Scan files for secrets
       const secretFindings = scanFiles(files);
@@ -111,7 +111,10 @@ const scanSteps = [
         riskScore,
       }));
 
-      // 3. Persist findings to MongoDB using the shared transactional session
+      // 3. Delete any partially-inserted documents from a previous failed attempt before re-inserting.
+      await SecurityEvent.deleteMany({ repository: repositoryId, scanId }, { session });
+
+      // 4. Persist findings to MongoDB using the shared transactional session
       if (events.length > 0) {
         await SecurityEvent.insertMany(events, { session });
       }

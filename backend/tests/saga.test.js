@@ -40,6 +40,14 @@ jest.unstable_mockModule('../src/models/SagaState.model.js', () => ({
       if (!stored) return null;
       return makeSagaDoc(stored);
     }),
+    findOneAndUpdate = jest.fn(async ({ sagaId }, update) => {
+      const stored = mockStates.get(sagaId);
+      if (stored && update.$set) {
+        Object.assign(stored, update.$set);
+        mockStates.set(sagaId, stored);
+      }
+      return stored ? makeSagaDoc(stored) : null;
+    }),
     create: jest.fn(async (data) => {
       const doc = makeSagaDoc(data);
       mockStates.set(doc.sagaId, { ...doc });
@@ -87,6 +95,14 @@ describe('Saga Orchestrator Framework', () => {
       const stored = mockStates.get(sagaId);
       if (!stored) return null;
       return makeSagaDoc(stored);
+    });
+    SagaState.findOneAndUpdate.mockImplementation(async ({ sagaId }, update) => {
+      const stored = mockStates.get(sagaId);
+      if (stored && update.$set) {
+        Object.assign(stored, update.$set);
+        mockStates.set(sagaId, stored);
+      }
+      return stored ? makeSagaDoc(stored) : null;
     });
     SagaState.create.mockImplementation(async (data) => {
       const doc = makeSagaDoc(data);
@@ -287,5 +303,121 @@ describe('Saga Orchestrator Framework', () => {
     const state = await SagaState.findOne({ sagaId });
     expect(state.status).toBe('completed');
     expect(state.completedSteps).toEqual(['step1', 'step2']);
+  });
+
+  // ── 6. Permanent AppError (4xx) — no retry ──────────────────────────────────
+  test('does not retry a step that throws a permanent 4xx AppError', async () => {
+    const sagaId = 'saga-no-retry-apperror';
+    let callCount = 0;
+
+    // Minimal AppError shape (mirrors src/utils/AppError.js)
+    class AppError extends Error {
+      constructor(message, statusCode) {
+        super(message);
+        this.statusCode = statusCode;
+        this.isOperational = true;
+      }
+    }
+
+    const steps = [
+      {
+        name: 'alreadyFollowing',
+        execute: async () => {
+          callCount += 1;
+          throw new AppError('Already following this user', 400);
+        },
+        compensate: async () => {},
+      },
+    ];
+
+    await expect(
+      SagaOrchestrator.executeSaga(
+        sagaId, 'FOLLOW_USER', steps, {}, { maxRetries: 3, retryDelayMs: 0 }
+      )
+    ).rejects.toThrow('Already following this user');
+
+    // Must execute exactly once — never retried
+    expect(callCount).toBe(1);
+
+    const state = await SagaState.findOne({ sagaId });
+    expect(state.status).toBe('rolled_back');
+    expect(state.failedStep).toBe('alreadyFollowing');
+    // retryCount must NOT be incremented for a permanent failure
+    expect(state.retryCount).toBe(0);
+  });
+
+  // ── 7. Transient plain Error — retried as normal ───────────────────────────
+  test('still retries a step that throws a plain (non-AppError) transient error', async () => {
+    const sagaId = 'saga-retry-plain-error';
+    let callCount = 0;
+
+    const steps = [
+      {
+        name: 'transientStep',
+        execute: async (ctx) => {
+          callCount += 1;
+          if (callCount < 3) throw new Error('transient network blip');
+          ctx.done = true;
+        },
+        compensate: async () => {},
+      },
+    ];
+
+    const result = await SagaOrchestrator.executeSaga(
+      sagaId, 'TEST', steps, {}, { maxRetries: 3, retryDelayMs: 0 }
+    );
+
+    expect(result.done).toBe(true);
+    expect(callCount).toBe(3); // retried twice, succeeded on third
+
+    const state = await SagaState.findOne({ sagaId });
+    expect(state.status).toBe('completed');
+    expect(state.retryCount).toBe(2);
+  });
+
+  // ── 8. Permanent 4xx on step 1 of 2 — step 2 never executes ───────────────
+  test('does not execute subsequent steps when step 1 throws a permanent AppError', async () => {
+    const sagaId = 'saga-apperror-step1-of-2';
+    const log = [];
+
+    class AppError extends Error {
+      constructor(message, statusCode) {
+        super(message);
+        this.statusCode = statusCode;
+        this.isOperational = true;
+      }
+    }
+
+    const steps = [
+      {
+        name: 'validateOpen',
+        execute: async () => {
+          log.push('validateOpen');
+          throw new AppError('Pull request is not open', 400);
+        },
+        compensate: async () => { log.push('comp-validateOpen'); },
+      },
+      {
+        name: 'gitMerge',
+        execute: async () => { log.push('gitMerge'); },
+        compensate: async () => { log.push('comp-gitMerge'); },
+      },
+    ];
+
+    await expect(
+      SagaOrchestrator.executeSaga(
+        sagaId, 'MERGE_PR', steps, {}, { maxRetries: 3, retryDelayMs: 0 }
+      )
+    ).rejects.toThrow('Pull request is not open');
+
+    // validateOpen called once; gitMerge never reached; no compensation
+    // for validateOpen because it never completed
+    expect(log).toEqual(['validateOpen']);
+
+    const state = await SagaState.findOne({ sagaId });
+    expect(state.status).toBe('rolled_back');
+    expect(state.completedSteps).toEqual([]);  // step1 never completed
+    expect(state.failedStep).toBe('validateOpen');
+    expect(state.retryCount).toBe(0);
   });
 });

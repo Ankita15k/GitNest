@@ -20,6 +20,7 @@ const auditLogSchema = new mongoose.Schema(
         'collaborator.add',
         'collaborator.remove',
         'collaborator.role_change',
+        'repo.clone',
         'auth.login',
         'auth.logout',
         'settings.update',

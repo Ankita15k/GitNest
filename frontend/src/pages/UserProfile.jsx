@@ -170,8 +170,14 @@ const UserProfileContent = ({ username }) => {
                     className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
-                        {repo?.name || 'Unknown Repository'}
+                      <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                        {repo?.name ? (
+                          <Link to={`/repositories/${username}/${repo.name}`} className="hover:underline cursor-pointer">
+                            {repo.name}
+                          </Link>
+                        ) : (
+                          'Unknown Repository'
+                        )}
                       </h3>
                       {repo?.stars > 0 && (
                         <span className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-0.5 shrink-0">

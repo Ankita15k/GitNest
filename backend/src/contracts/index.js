@@ -232,6 +232,162 @@ const symbolSearchData = {
   required: ['symbols', 'pagination'],
 };
 
+const dependencyListQuery = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    dependencyType: { type: 'string', minLength: 1, maxLength: 50 },
+    file: { type: 'string', minLength: 1, maxLength: 300 },
+    symbol: { type: 'string', minLength: 1, maxLength: 100 },
+    page: { type: 'integer', minimum: 1 },
+    limit: { type: 'integer', minimum: 1, maximum: 50 },
+  },
+};
+
+const dependencyImpactQuery = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    file: { type: 'string', minLength: 1, maxLength: 300 },
+    symbol: { type: 'string', minLength: 1, maxLength: 100 },
+    depth: { type: 'integer', minimum: 1, maximum: 10 },
+  },
+  anyOf: [{ required: ['file'] }, { required: ['symbol'] }],
+};
+
+const symbolNameParam = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    username: { type: 'string', minLength: 1, maxLength: 39 },
+    reponame: { type: 'string', minLength: 1, maxLength: 100 },
+    symbolName: { type: 'string', minLength: 1, maxLength: 100 },
+  },
+  required: ['username', 'reponame', 'symbolName'],
+};
+
+const dependencyListData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    dependencies: { type: 'array', items: sharedSchemas.dependencyGraph },
+    pagination: sharedSchemas.pagination,
+  },
+  required: ['dependencies', 'pagination'],
+};
+
+const dependencyImpactData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    seed: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        file: { type: ['string', 'null'] },
+        symbol: { type: ['string', 'null'] },
+      },
+      required: ['file', 'symbol'],
+    },
+    directDependencies: { type: 'array', items: sharedSchemas.dependencyGraph },
+    directDependents: { type: 'array', items: sharedSchemas.dependencyGraph },
+    affectedSymbols: { type: 'array', items: { type: 'string' } },
+    affectedFiles: { type: 'array', items: { type: 'string' } },
+    depthSummary: { type: 'object', additionalProperties: { type: 'integer', minimum: 0 } },
+  },
+  required: ['seed', 'directDependencies', 'directDependents', 'affectedSymbols', 'affectedFiles', 'depthSummary'],
+};
+
+const symbolDependenciesData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    symbolName: { type: 'string' },
+    dependencies: { type: 'array', items: sharedSchemas.dependencyGraph },
+    dependents: { type: 'array', items: sharedSchemas.dependencyGraph },
+  },
+  required: ['symbolName', 'dependencies', 'dependents'],
+};
+
+const architectureModuleParam = {
+  type: 'object',
+  additionalProperties: true,
+  properties: {
+    username: { type: 'string', minLength: 1, maxLength: 39 },
+    reponame: { type: 'string', minLength: 1, maxLength: 100 },
+    moduleName: { type: 'string', minLength: 1, maxLength: 300 },
+  },
+  required: ['username', 'reponame', 'moduleName'],
+};
+
+const architectureHotspotsData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    hotspots: { type: 'array', items: sharedSchemas.architectureHotspot },
+  },
+  required: ['hotspots'],
+};
+
+const architectureRiskData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    riskScore: sharedSchemas.riskScore,
+    complexityScore: { type: 'number', minimum: 0 },
+    circularDependencyCount: { type: 'integer', minimum: 0 },
+    criticalModuleCount: { type: 'integer', minimum: 0 },
+  },
+  required: ['riskScore', 'complexityScore', 'circularDependencyCount', 'criticalModuleCount'],
+};
+
+const architectureModuleData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    module: sharedSchemas.architectureModule,
+    relationships: { type: 'array', items: { type: 'object', additionalProperties: true } },
+    hotspots: { type: 'array', items: sharedSchemas.architectureHotspot },
+  },
+  required: ['module', 'relationships', 'hotspots'],
+};
+
+const repositoryHealthHistoryData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    history: { type: 'array', items: sharedSchemas.repositoryHealth },
+  },
+  required: ['history'],
+};
+
+const repositoryHealthRecommendationsData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    recommendations: { type: 'array', items: sharedSchemas.repositoryHealthRecommendation },
+  },
+  required: ['recommendations'],
+};
+
+const repositoryComplianceHistoryData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    history: { type: 'array', items: sharedSchemas.repositoryCompliance },
+  },
+  required: ['history'],
+};
+
+const repositoryComplianceViolationsData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    violations: { type: 'array', items: sharedSchemas.complianceCheck },
+  },
+  required: ['violations'],
+};
+
 export const contracts = {
   auth: {
     register: { tags: ['Auth'], summary: 'Register a user', request: { body: registerBody }, responses: { 201: sharedSchemas.successEnvelope(sharedSchemas.authUser) } },
@@ -239,6 +395,15 @@ export const contracts = {
     me: { tags: ['Auth'], summary: 'Fetch current user', security: [{ bearerAuth: [] }], responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.user) } },
     forgotPassword: { tags: ['Auth'], summary: 'Request a password reset', request: { body: forgotPasswordBody }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
     resetPassword: { tags: ['Auth'], summary: 'Reset password with token', request: { body: resetPasswordBody, params: { type: 'object', additionalProperties: true, properties: { token: { type: 'string', minLength: 1 } }, required: ['token'] } }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.authUser) } },
+  },
+  git: {
+    initializeRepository: { tags: ['Git'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 201: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
+    addFiles: { tags: ['Git'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam, body: { type: 'object', additionalProperties: false, properties: { files: { type: 'array', items: { type: 'string' } } } } }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
+    commitChanges: { tags: ['Git'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam, body: { type: 'object', additionalProperties: false, properties: { message: { type: 'string', minLength: 1 } }, required: ['message'] } }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
+    pushRepository: { tags: ['Git'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam, body: { type: 'object', additionalProperties: false, properties: { branch: { type: 'string' } } } }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
+    pullRepository: { tags: ['Git'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam, body: { type: 'object', additionalProperties: false, properties: { branch: { type: 'string' } } } }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
+    revertCommit: { tags: ['Git'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam, body: { type: 'object', additionalProperties: false, properties: { commitHash: { type: 'string', minLength: 1 } }, required: ['commitHash'] } }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
+    diff: { tags: ['Git'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam, query: { type: 'object', additionalProperties: false, properties: { base: { type: 'string' }, head: { type: 'string' }, file: { type: 'string' } } } }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
   },
   repositories: {
     listByUser: { tags: ['Repositories'], request: { params: sharedSchemas.usernameParam, query: sharedSchemas.paginationQuery }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
@@ -311,6 +476,28 @@ export const contracts = {
     indexStatus: { tags: ['Code Intelligence'], security: [{ bearerAuth: [] }], request: { params: indexStatusParam }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
     searchSymbols: { tags: ['Code Intelligence'], request: { params: sharedSchemas.repoParam, query: symbolSearchQuery }, responses: { 200: sharedSchemas.successEnvelope(symbolSearchData) } },
     symbolDetails: { tags: ['Code Intelligence'], request: { params: symbolDetailParam }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.indexedSymbol) } },
+    rebuildDependencies: { tags: ['Code Intelligence'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: false, properties: { edgeCount: { type: 'integer', minimum: 0 } }, required: ['edgeCount'] }) } },
+    listDependencies: { tags: ['Code Intelligence'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam, query: dependencyListQuery }, responses: { 200: sharedSchemas.successEnvelope(dependencyListData) } },
+    dependencyImpact: { tags: ['Code Intelligence'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam, query: dependencyImpactQuery }, responses: { 200: sharedSchemas.successEnvelope(dependencyImpactData) } },
+    symbolDependencies: { tags: ['Code Intelligence'], security: [{ bearerAuth: [] }], request: { params: symbolNameParam }, responses: { 200: sharedSchemas.successEnvelope(symbolDependenciesData) } },
+  },
+  architecture: {
+    get: { tags: ['Architecture'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.architectureAnalysis) } },
+    hotspots: { tags: ['Architecture'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(architectureHotspotsData) } },
+    risk: { tags: ['Architecture'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(architectureRiskData) } },
+    module: { tags: ['Architecture'], security: [{ bearerAuth: [] }], request: { params: architectureModuleParam }, responses: { 200: sharedSchemas.successEnvelope(architectureModuleData) } },
+  },
+  repositoryHealth: {
+    get: { tags: ['Repository Health'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.repositoryHealth) } },
+    history: { tags: ['Repository Health'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(repositoryHealthHistoryData) } },
+    breakdown: { tags: ['Repository Health'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.repositoryHealthBreakdown) } },
+    recommendations: { tags: ['Repository Health'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(repositoryHealthRecommendationsData) } },
+  },
+  repositoryCompliance: {
+    get: { tags: ['Repository Compliance'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.repositoryCompliance) } },
+    history: { tags: ['Repository Compliance'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(repositoryComplianceHistoryData) } },
+    violations: { tags: ['Repository Compliance'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(repositoryComplianceViolationsData) } },
+    report: { tags: ['Repository Compliance'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.repositoryComplianceReport) } },
   },
 };
 

@@ -1,7 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 
-const buildTree = (directoryPath) => {
+const MAX_TREE_DEPTH = 50;
+const buildTree = (directoryPath, visited = new Set(), depth = 0) => {
+  if (depth > MAX_TREE_DEPTH) {
+    return [];
+  }
+
+  const realPath = fs.realpathSync(directoryPath);
+
+  if (visited.has(realPath)) {
+    return [];
+  }
+
+  visited.add(realPath);
   const items = fs.readdirSync(directoryPath);
 
   return items
@@ -9,13 +21,15 @@ const buildTree = (directoryPath) => {
     .map((item) => {
       const fullPath = path.join(directoryPath, item);
 
-      const stats = fs.statSync(fullPath);
-
+      const stats = fs.lstatSync(fullPath);
+      if (stats.isSymbolicLink()) {
+        return null;
+      }
       if (stats.isDirectory()) {
         return {
           name: item,
           type: 'directory',
-          children: buildTree(fullPath),
+          children: buildTree(fullPath, visited, depth + 1),
         };
       }
 
@@ -23,7 +37,8 @@ const buildTree = (directoryPath) => {
         name: item,
         type: 'file',
       };
-    });
+    })
+    .filter(Boolean);
 };
 
 export const buildRepositoryTree = async (
@@ -57,7 +72,6 @@ export const getRepositoryFileContent = async (userId, repoName, filePath) => {
   }
 
   const absolutePath = path.resolve(repoPath, filePath);
-  
   if (!absolutePath.startsWith(repoPath)) {
     const error = new Error('Path traversal detected');
     error.statusCode = 403;

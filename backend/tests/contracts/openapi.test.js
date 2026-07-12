@@ -15,5 +15,12 @@ describe('OpenAPI contract', () => {
     expect(swaggerSpec.paths['/api/v1/activities/global'].get).toBeDefined();
     expect(swaggerSpec.paths['/api/v1/pull-requests'].get).toBeDefined();
     expect(swaggerSpec.paths['/api/v1/pull-requests/{id}/comments'].post).toBeDefined();
+    expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/dependencies'].get).toBeDefined();
+    expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/dependencies/impact'].get).toBeDefined();
+    expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/architecture'].get).toBeDefined();
+    expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/architecture/hotspots'].get).toBeDefined();
+    expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/architecture/risk'].get).toBeDefined();
+    expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/compliance'].get).toBeDefined();
+    expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/compliance/report'].get).toBeDefined();
   });
 });

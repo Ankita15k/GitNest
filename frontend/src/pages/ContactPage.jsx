@@ -117,8 +117,7 @@ export default function ContactPage() {
                                 key={item.name}
                                 href={item.href}
                                 onClick={() => setActiveLink(item.href)}
-                                className={`relative text-[15px] font-medium transition-all duration-300 ${
-                                    activeLink === item.href
+                                className={`relative text-[15px] font-medium transition-all duration-300 ${activeLink === item.href
                                     ? "text-zinc-950 dark:text-white"
                                     : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
                                     }`}
@@ -143,8 +142,7 @@ export default function ContactPage() {
                             className="relative w-[90px] h-12 rounded-full bg-white dark:bg-[#11151c] border border-zinc-200 dark:border-white/10 shadow-inner flex items-center px-1"
                         >
                             <div
-                                className={`absolute top-1 w-10 h-10 rounded-full bg-gradient-to-br from-[#00dc82] to-cyan-400 transition-all duration-500 shadow-lg ${
-                                    isDarkMode ? "translate-x-[40px]" : "translate-x-0"
+                                className={`absolute top-1 w-10 h-10 rounded-full bg-gradient-to-br from-[#00dc82] to-cyan-400 transition-all duration-500 shadow-lg ${isDarkMode ? "translate-x-[40px]" : "translate-x-0"
                                     }`}
                             />
 
@@ -240,7 +238,13 @@ export default function ContactPage() {
                 <div className="max-w-7xl mx-auto">
 
                     {/* Heading */}
-                    <div className="text-center mb-20">
+                    <motion.div
+                        className="text-center mb-20"
+                        initial={{ opacity: 0, y: 40 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.7 }}
+                    >
                         <span className="inline-flex items-center gap-2 px-5 py-3 rounded-full border border-[#00dc82]/20 bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl text-[#00dc82] font-medium text-sm">
                             Contact GitNest
                         </span>
@@ -256,41 +260,93 @@ export default function ContactPage() {
                             Have questions, suggestions, or want to contribute?
                             We'd love to hear from you.
                         </p>
-                    </div>
+                    </motion.div>
 
                     <div className="grid lg:grid-cols-2 gap-10">
 
                         {/* Contact Info */}
-                        <div className="space-y-6">
+                        <motion.div
+                            className="space-y-6"
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={{ once: true }}
+                            variants={{
+                                hidden: {},
+                                visible: {
+                                    transition: {
+                                        staggerChildren: 0.15,
+                                    },
+                                },
+                            }}
+                        >
 
-                            <div className="rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl p-8">
+                            <motion.div
+                                variants={{
+                                    hidden: { opacity: 0, x: -40 },
+                                    visible: { opacity: 1, x: 0 },
+                                }}
+                                transition={{ duration: 0.5 }}
+                                whileHover={{
+                                    y: -8,
+                                    scale: 1.02,
+                                }}
+                                className="rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl p-8"
+                            >
                                 <Mail className="w-8 h-8 text-[#00dc82] mb-4" />
                                 <h3 className="text-2xl font-bold mb-2">Email Us</h3>
                                 <p className="text-zinc-600 dark:text-zinc-400">
                                     support@gitnest.dev
                                 </p>
-                            </div>
+                            </motion.div>
 
-                            <div className="rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl p-8">
+                            <motion.div
+                                variants={{
+                                    hidden: { opacity: 0, x: -40 },
+                                    visible: { opacity: 1, x: 0 },
+                                }}
+                                transition={{ duration: 0.5 }}
+                                whileHover={{
+                                    y: -8,
+                                    scale: 1.02,
+                                }}
+                                className="rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl p-8"
+                            >
                                 <Phone className="w-8 h-8 text-[#00dc82] mb-4" />
                                 <h3 className="text-2xl font-bold mb-2">Call Us</h3>
                                 <p className="text-zinc-600 dark:text-zinc-400">
                                     +91 98765 43210
                                 </p>
-                            </div>
+                            </motion.div>
 
-                            <div className="rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl p-8">
+                            <motion.div
+                                variants={{
+                                    hidden: { opacity: 0, x: -40 },
+                                    visible: { opacity: 1, x: 0 },
+                                }}
+                                transition={{ duration: 0.5 }}
+                                whileHover={{
+                                    y: -8,
+                                    scale: 1.02,
+                                }}
+                                className="rounded-[32px] border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl p-8"
+                            >
                                 <MapPin className="w-8 h-8 text-[#00dc82] mb-4" />
                                 <h3 className="text-2xl font-bold mb-2">Location</h3>
                                 <p className="text-zinc-600 dark:text-zinc-400">
                                     Open Source Community Worldwide
                                 </p>
-                            </div>
+                            </motion.div>
 
-                        </div>
+                        </motion.div>
 
                         {/* Form */}
-                        <div className="rounded-[36px] border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-[#0f131a]/80 backdrop-blur-2xl p-8 md:p-10 shadow-xl">
+                        <motion.div
+                            initial={{ opacity: 0, x: 50 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.7 }}
+                            className="rounded-[36px] border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-[#0f131a]/80 backdrop-blur-2xl p-8 md:p-10 shadow-xl"
+                        >
 
                             <h2 className="text-3xl font-black mb-8">
                                 Send us a message
@@ -334,16 +390,23 @@ export default function ContactPage() {
                                     className="w-full rounded-2xl border border-zinc-200 dark:border-white/10 bg-white dark:bg-white/[0.03] px-5 py-4 outline-none resize-none text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:border-emerald-400 transition-colors"
                                 />
 
-                                <button
+                                <motion.button
                                     type="submit"
+                                    whileHover={{
+                                        scale: 1.03,
+                                    }}
+
+                                    whileTap={{
+                                        scale: 0.97,
+                                    }}
                                     className="group w-full py-4 rounded-2xl bg-gradient-to-r from-[#00dc82] via-[#2be4da] to-[#4fd1ff] text-black font-bold flex items-center justify-center gap-3 hover:shadow-[0_15px_50px_rgba(0,220,130,0.3)] transition-shadow"
                                 >
                                     Send Message
                                     <Send className="w-5 h-5" />
-                                </button>
+                                </motion.button>
 
                             </form>
-                        </div>
+                        </motion.div>
 
                     </div>
                 </div>

@@ -15,14 +15,20 @@ import auditLogRoutes from './routes/auditLog.routes.js';
 import activityRoutes from './routes/activity.routes.js';
 import pullRequestRoutes from './routes/pullRequest.routes.js';
 import architectureRoutes from './routes/architectureRoutes.js';
+import repositoryHealthRoutes from './routes/repositoryHealth.routes.js';
+import repositoryComplianceRoutes from './routes/repositoryCompliance.routes.js';
 import healthRoute from './routes/health.route.js';
 import commitHistoryRoutes from './routes/commitHistory.routes.js';
 import fileBrowserRoutes from './routes/fileBrowser.routes.js';
 import branchRoutes from './routes/branch.routes.js';
 import gitRoutes from './routes/git.routes.js';
+import mergeRoutes from './routes/merge.routes.js';
 import searchRoutes from './routes/search.routes.js';
 import codeIntelligenceRoutes from './routes/codeIntelligence.routes.js';
 import cloneRoutes from './routes/clone.routes.js';
+import archiveRoutes from './routes/archive.routes.js';
+import fileCrudRoutes from './routes/fileCrud.routes.js';
+import notificationRoutes from './routes/notification.routes.js';
 import errorHandler from './middleware/errorHandler.js';
 import AppError from './utils/AppError.js';
 import swaggerSpec from './config/swagger.js';
@@ -37,6 +43,7 @@ import session from "express-session";
 
 import "./config/passport.js";
 import githubAuthRoutes from "./routes/auth.github.routes.js";
+import googleAuthRoutes from "./routes/auth.google.routes.js";
 
 registerAuditSubscribers();
 
@@ -128,10 +135,18 @@ const createApp = () => {
   app.use('/api/v1/repositories', fileBrowserRoutes);
   app.use('/api/v1/repositories', branchRoutes);
   app.use('/api/v1/repos', gitRoutes);
+  app.use('/api/v1/repositories', mergeRoutes);
   app.use('/api/v1/repositories', codeIntelligenceRoutes);
+  app.use('/api/v1/repositories', architectureRoutes);
+  app.use('/api/v1/repositories', repositoryHealthRoutes);
+  app.use('/api/v1/repositories', archiveRoutes);
+  app.use('/api/v1/repositories', fileCrudRoutes);
+  app.use('/api/v1/repositories', repositoryComplianceRoutes);
   app.use('/api/v1/search', searchRoutes);
   app.use('/api/v1/auth', githubAuthRoutes);
+  app.use('/api/v1/auth', googleAuthRoutes);
   app.use('/api/v1/repositories', cloneRoutes);
+  app.use('/api/v1/notifications', notificationRoutes);
   app.use((req, res, next) => {
     next(
       new AppError(
