@@ -52,7 +52,8 @@ export const checkoutBranch = async (
 export const deleteBranch = async (
   userId,
   repoName,
-  branchName
+  branchName,
+  defaultBranch
 ) => {
   const git = getGitInstance(userId, repoName);
 
@@ -66,8 +67,8 @@ export const deleteBranch = async (
     throw new Error('Cannot delete the current branch');
   }
 
-  if (branchName === 'main') {
-    throw new Error('Cannot delete the main branch');
+  if (branchName === defaultBranch) {
+    throw new Error('Cannot delete the default branch');
   }
 
   await git.deleteLocalBranch(branchName);

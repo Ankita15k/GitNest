@@ -23,6 +23,7 @@ import RepositorySettingsPage from './pages/RepositorySettingsPage.jsx';
 import OAuthSuccess from './pages/OAuthSuccess.jsx';
 import ContactPage from './pages/ContactPage';
 import Dashboard from './pages/Dashboard';
+import FavoritesPage from './pages/FavoritesPage.jsx';
 
 
 function App() {
@@ -63,6 +64,7 @@ return ( <div className="min-h-screen">
         element={<PullRequestDetailPage />}
       />
       <Route path="/activities" element={<ActivityFeedPage />} />
+      <Route path="/favorites" element={<FavoritesPage />} />
       <Route
         path="/:owner/:repo/architecture"
         element={<RepositoryArchitecturePage />}
@@ -95,3 +97,5 @@ return ( <div className="min-h-screen">
 }
 
 export default App;
+
+

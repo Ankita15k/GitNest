@@ -22,15 +22,17 @@ const Login = () => {
   const addToast = useToastStore((s) => s.addToast);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [urlError, setUrlError] = useState(null);
+  const errorParam = searchParams.get("error");
+
+  const [urlError, setUrlError] = useState(
+    errorParam ? decodeURIComponent(errorParam) : null,
+  );
 
   useEffect(() => {
-    const errorParam = searchParams.get("error");
     if (errorParam) {
-      setUrlError(decodeURIComponent(errorParam));
       navigate("/login", { replace: true });
     }
-  }, [searchParams, navigate]);
+  }, [errorParam, navigate]);
 
   useEffect(() => {
     clearError();
