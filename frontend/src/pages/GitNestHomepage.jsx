@@ -314,7 +314,7 @@ export default function GitNestHomepage() {
                             transition={{
                                 duration: 0.8,
                                 delay: 0.2,
-                            }} className="text-[42px] sm:text-[50px] leading-[1] font-black break-words">
+                            }} className="text-[42px] sm:text-[50px] leading-[1] font-black break-words pb-4">
 
                             <span className="block">
                                 Build the future
@@ -328,7 +328,7 @@ export default function GitNestHomepage() {
                                 collaborative
                             </span>
 
-                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#00dc82] via-[#36e4da] to-[#4fd1ff]">
+                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#00dc82] via-[#36e4da] to-[#4fd1ff] pt-1 pb-2">
                                 coding
                             </span>
                         </motion.h1>
