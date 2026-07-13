@@ -381,17 +381,19 @@ export default function GitNestHomepage() {
             </p>
 
             <div className="flex flex-wrap gap-5 mb-14">
-              <Link
-                to="/login"
-                className="group px-6 py-3 rounded-3xl bg-gradient-to-r from-[#00dc82] to-[#36e4da] text-black font-bold shadow-[0_15px_45px_rgba(0,220,130,0.30)] hover:-translate-y-1 transition-all flex items-center gap-3"
-              >
-                Explore Repositories{" "}
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+             <Link
+  to="/login"
+  className="group px-6 py-3 rounded-3xl bg-gradient-to-r from-[#00dc82] to-[#36e4da] text-black font-bold shadow-[0_15px_45px_rgba(0,220,130,0.30)] hover:from-zinc-900 hover:to-zinc-800 hover:text-white hover:-translate-y-1 transition-all duration-300 flex items-center gap-3"
+>
+  Explore Repositories
+  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+</Link>
               <Link
                 to="/docs"
-                className="px-8 py-3 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl text-zinc-700 dark:text-zinc-200 hover:shadow-xl transition-all flex items-center gap-3"
-              >
+                
+  
+  className="px-8 py-3 rounded-3xl border border-emerald-400 bg-emerald-400 text-black hover:bg-emerald-500 hover:border-emerald-500 hover:text-black transition-all duration-300 flex items-center gap-3"
+>
                 <Layers3 className="w-5 h-5" /> Read Documentation
               </Link>
             </div>
