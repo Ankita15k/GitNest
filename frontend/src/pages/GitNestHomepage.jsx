@@ -139,8 +139,16 @@ export default function GitNestHomepage() {
     },
   };
 
-  // Scroll Progress Bar
+  // Scroll Progress Bar & Scroll Spy
   useEffect(() => {
+    // Scroll restoration to top on component mount if no hash is present
+    if (!window.location.hash) {
+      window.scrollTo(0, 0);
+    } else {
+      const el = document.querySelector(window.location.hash);
+      if (el) el.scrollIntoView();
+    }
+
     const handleScroll = () => {
       const totalHeight =
         document.documentElement.scrollHeight - window.innerHeight;
@@ -150,7 +158,26 @@ export default function GitNestHomepage() {
     };
 
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    // Intersection Observer for Active Nav Link
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveLink(`#${entry.target.id}`);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    const sections = document.querySelectorAll("section[id]");
+    sections.forEach((section) => observer.observe(section));
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      sections.forEach((section) => observer.unobserve(section));
+    };
   }, []);
 
   const handleCopyUrl = async () => {
