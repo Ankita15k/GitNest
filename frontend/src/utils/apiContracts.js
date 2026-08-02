@@ -6,4 +6,4 @@ export const getApiUserName = (user) => {
   return user.username || user.email || 'unknown';
 };
 
-export const getApiUserAvatar = (user) => getApiUserName(user).charAt(0).toUpperCase();
+export const getApiUserAvatar = (user) => getApiUserName(user)[0].toUpperCase();
