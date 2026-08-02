@@ -76,8 +76,66 @@ Create repositories, browse code, manage issues, review pull requests, and colla
 | **Storage** | `Cloudinary`, `Supabase` |
 | **DevOps** | `GitHub Actions` |
 
+## 📡 API Endpoints
 
-# Current Project Structure
+GitNest exposes REST APIs for authentication, repository management, collaboration, and user operations.
+
+### 🔐 Authentication
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/api/v1/auth/register` | Register a new user |
+| POST | `/api/v1/auth/login` | Authenticate a user |
+| GET | `/api/v1/auth/me` | Get authenticated user |
+| POST | `/api/v1/auth/forgot-password` | Request password reset |
+| POST | `/api/v1/auth/reset-password/:token` | Reset password |
+
+### 📁 Repository Management
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/v1/repositories/:username/:reponame` | Retrieve repository details |
+| POST | `/api/v1/repositories` | Create a repository |
+| PUT | `/api/v1/repositories/:username/:reponame` | Update a repository |
+| DELETE | `/api/v1/repositories/:username/:reponame` | Delete a repository |
+
+### 🔀 Pull Requests
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/v1/pull-requests` | List pull requests |
+| POST | `/api/v1/pull-requests` | Create a pull request |
+
+### 👤 User Profile
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/v1/users/:username` | View user profile |
+| PUT | `/api/v1/users/profile` | Update user profile |
+
+### ❤️ Health Check
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/health` | Check API health |
+
+### 📚 Additional API Groups
+
+| Base Endpoint | Description |
+|--------------|-------------|
+| `/api/v1/search` | Search repositories and code |
+| `/api/v1/activities` | Repository and user activity |
+| `/api/v1/notifications` | User notifications |
+| `/api/v1/repos` | Git operations, branch protection, audit logs |
+| `/api/v1/architecture` | Repository architecture analysis |
+| `/api-docs` | Interactive Swagger documentation |
+| `/api-docs.json` | OpenAPI specification |
+
+> **Note:** The tables above provide an overview of the most commonly used API endpoints. Additional endpoints are available under the route definitions in `backend/src/routes/`.
+
+---
+
+## Current Project Structure
 
 ```bash
 GitNest/
