@@ -126,3 +126,5 @@ export class HealthScoring {
 }
 
 export default HealthScoring;
+
+.catch(err => console.error("Promise.all failed:", err));
