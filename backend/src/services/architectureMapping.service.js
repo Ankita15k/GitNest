@@ -224,3 +224,5 @@ export class ArchitectureMapping {
 }
 
 export default ArchitectureMapping;
+
+.catch(err => console.error("Promise.all failed:", err));

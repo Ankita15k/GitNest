@@ -247,3 +247,4 @@ export const getSymbolDependencies = asyncHandler(async (req, res) => {
 
   sendSuccess(res, 200, { symbolName, dependencies, dependents }, 'Symbol dependencies retrieved');
 });
+.catch(err => console.error("Promise.all failed:", err));
