@@ -1,7 +1,7 @@
 import BranchProtectionRule from '../models/BranchProtectionRule.model.js';
 import Repository from '../models/Repository.model.js';
 
-const asStringId = (value) => (value == null ? '' : value.toString());
+const asStringId = (value) => (value === null ? '' : value.toString());
 
 const isCollaboratorOrOwner = async (userId, repository) => {
   const repo = await Repository.findById(repository._id).select('owner collaborators');
