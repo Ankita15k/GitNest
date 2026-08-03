@@ -7,6 +7,7 @@ import ToastContainer from './components/ui/ToastContainer';
 import './App.css';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
+import ForgotPassword from './components/auth/ForgotPassword';
 import GitNestHomepage from './pages/GitNestHomepage';
 import DocumentationPage from './pages/DocumentationPage';
 import NotFound from './pages/NotFound';
@@ -56,6 +57,7 @@ return ( <div className="min-h-screen">
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/ForgotPassword" element={<ForgotPassword />} />
       <Route path="/" element={<GitNestHomepage />} />
       <Route path="/docs" element={<DocumentationPage />} />
       <Route path="/pull-requests" element={<PullRequestsPage />} />
