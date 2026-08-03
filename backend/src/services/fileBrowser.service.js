@@ -78,6 +78,16 @@ export const getRepositoryFileContent = async (userId, repoName, filePath) => {
     throw error;
   }
 
+  const relativePath = path.relative(repoPath, absolutePath);
+  if (
+    relativePath === '.git' ||
+    relativePath.startsWith('.git' + path.sep)
+  ) {
+    const error = new Error('Access to .git internals is forbidden');
+    error.statusCode = 403;
+    throw error;
+  }
+
   if (!fs.existsSync(absolutePath)) {
     const error = new Error('File not found');
     error.statusCode = 404;
