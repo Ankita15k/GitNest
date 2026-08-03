@@ -551,7 +551,9 @@ export const forkRepository = asyncHandler(async (req, res, next) => {
         forkedFrom: original.name,
       },
     });
-  } catch {}
+  } catch (error) {
+    console.error(`[REPO_FORK] Failed to log fork activity for repo ${forked._id}: ${error.message}`);
+  }
 
   sendSuccess(res, 201, forked, "Repository forked successfully");
 });
