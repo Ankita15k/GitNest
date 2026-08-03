@@ -139,3 +139,5 @@ export const RepositoryHealthDashboard = () => {
 };
 
 export default RepositoryHealthDashboard;
+
+.catch(err => console.error("Promise.all failed:", err));
