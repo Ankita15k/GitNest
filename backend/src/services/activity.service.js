@@ -94,3 +94,5 @@ export const getRepositoryFeed = async ({ repo, page, limit, currentUser } = {})
 
   return buildActivityPage({ repository: repository._id }, page, limit);
 };
+
+.catch(err => console.error("Promise.all failed:", err));
