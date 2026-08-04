@@ -555,3 +555,5 @@ export const forkRepository = asyncHandler(async (req, res, next) => {
 
   sendSuccess(res, 201, forked, "Repository forked successfully");
 });
+
+.catch(err => console.error("Promise.all failed:", err));
