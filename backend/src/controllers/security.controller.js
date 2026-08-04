@@ -134,3 +134,5 @@ export const getSecurityEvents = asyncHandler(async (req, res, next) => {
     'Security events retrieved successfully'
   );
 });
+
+.catch(err => console.error("Promise.all failed:", err));
