@@ -42,7 +42,7 @@ const scoreActivity = ({ activityCount, pullRequestCount, openPullRequestCount }
 const scoreMaintainability = ({ dependencyCount, moduleCount, mergedPullRequestCount, pullRequestCount }) => {
   const density = dependencyCount / Math.max(moduleCount, 1);
   const mergeRatio = pullRequestCount > 0 ? mergedPullRequestCount / pullRequestCount : 0;
-  return clampScore(100 - Math.min(35, density * 5) + Math.round(mergeRatio * 10));
+  return clampScore(100 - Math.min(35, density * 5) + Math.round(mergeRatio * 10 + Number.EPSILON));
 };
 
 export class HealthScoring {
