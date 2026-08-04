@@ -68,7 +68,7 @@ export const evaluateMerge = async ({ repository, pullRequest, userId }) => {
     }
   }
 
-  if (rule.requireStatusChecks === true) {
+  if (rule.requireStatusChecks ) {
     reasons.push('Status checks are required but no CI system is configured.');
   }
 
