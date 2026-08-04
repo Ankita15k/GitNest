@@ -477,3 +477,5 @@ export const submitPullRequestReview = asyncHandler(async (req, res) => {
   await pullRequest.populate('reviews.author', 'username avatarUrl');
   sendSuccess(res, 201, review.toObject(), 'Pull request review submitted successfully');
 });
+
+.catch(err => console.error("Promise.all failed:", err));
