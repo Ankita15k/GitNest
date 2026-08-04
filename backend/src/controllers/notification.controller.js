@@ -59,3 +59,5 @@ export const markAllAsRead = asyncHandler(async (req, res) => {
 
   sendSuccess(res, 200, { message: 'All notifications marked as read' });
 });
+
+.catch(err => console.error("Promise.all failed:", err));
