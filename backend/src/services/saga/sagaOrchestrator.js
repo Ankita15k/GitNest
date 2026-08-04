@@ -123,7 +123,7 @@ export class SagaOrchestrator {
           } catch (error) {
             stepError = error;
             devLog(`[Saga: ${type}] Step ${step.name} failed on attempt ${attempt}: ${error.message}`);
-            const isPermanent = error.isOperational === true && typeof error.statusCode === 'number' &&
+            const isPermanent = error.isOperational  && typeof error.statusCode === 'number' &&
               error.statusCode >= 400 && error.statusCode < 500;
 
             if (isPermanent) {
