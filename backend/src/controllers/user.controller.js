@@ -364,3 +364,5 @@ export const getFollowing = asyncHandler(async (req, res, next) => {
 
   sendSuccess(res, 200, { following, pagination }, 'Following fetched successfully');
 });
+
+.catch(err => console.error("Promise.all failed:", err));
