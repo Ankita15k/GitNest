@@ -100,3 +100,4 @@ export const crawlRepositoryFiles = async (repoPath) => {
   await walk(repoPath);
   return files;
 };
+.catch(err => console.error("Promise.all failed:", err));
