@@ -142,3 +142,5 @@ export class PolicyEvaluation {
 }
 
 export default PolicyEvaluation;
+
+.catch(err => console.error("Promise.all failed:", err));
