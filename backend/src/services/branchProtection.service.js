@@ -1,7 +1,7 @@
 import BranchProtectionRule from '../models/BranchProtectionRule.model.js';
 
 const assertStatusChecksSupported = (data = {}) => {
-  if (data.requireStatusChecks === true) {
+  if (data.requireStatusChecks ) {
     throw new Error('Status checks are not yet supported.');
   }
 };
