@@ -73,3 +73,5 @@ export const getAuditLogs = asyncHandler(async (req, res) => {
 
   sendSuccess(res, 200, { logs, pagination }, 'Audit logs fetched successfully');
 });
+
+.catch(err => console.error("Promise.all failed:", err));
