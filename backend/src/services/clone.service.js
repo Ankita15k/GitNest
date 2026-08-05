@@ -58,7 +58,7 @@ async function checkDiskSpace(repoPath) {
       child.on('close', (code) => {
         if (code !== 0) return reject(new Error('Disk check failed'));
         const lines = stdout.trim().split('\n');
-        const kb = parseInt(lines[lines.length - 1], 10);
+        const kb = parseInt(lines.at(-1), 10);
         if (isNaN(kb)) return reject(new Error('Could not parse disk space'));
         resolve(BigInt(kb) * 1024n);
       });
