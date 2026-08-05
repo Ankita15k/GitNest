@@ -31,7 +31,7 @@ export const detectCircularDependencies = (edges = [], maxDepth = 3) => {
     for (const next of graph.get(node) || []) {
       if (next === start && trail.length >= 2) {
         const cycle = [...trail, start];
-        const key = cycle.slice(0, -1).sort().join('|');
+        const key = cycle.slice(0, -1).sort((a, b) => a - b).join('|');
         if (!seen.has(key)) {
           seen.add(key);
           cycles.push(cycle);
