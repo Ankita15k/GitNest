@@ -181,3 +181,5 @@ export const globalSearch = asyncHandler(async (req, res, next) => {
     throw error;
   }
 });
+
+.catch(err => console.error("Promise.all failed:", err));
