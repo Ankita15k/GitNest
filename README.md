@@ -238,8 +238,8 @@ Make sure you have the following installed:
   
   ```bash
   
-  git clone https://github.com/<your-username>/gitnest.git
-  cd GitNest
+ git clone https://github.com/<your-username>/GitNest.git
+cd GitNest
   ```
 
 **2. Set up environment variables**
