@@ -12,6 +12,11 @@ export const loginUser = async (userData) => {
   return response.data;
 };
 
+export const forgotPassword = async (email) => {
+  const response = await authApi.post("/forgot-password", { email });
+  return response.data;
+};
+
 export const getMe = async () => {
   const response = await authApi.get('/me'); 
   return response.data.data;
